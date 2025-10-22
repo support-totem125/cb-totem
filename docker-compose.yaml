@@ -46,7 +46,7 @@ services:
       # Servidor
       - SERVER_TYPE=${EVOLUTION_SERVER_TYPE:-http}
       - SERVER_PORT=${SERVER_PORT:-8080}
-      - SERVER_URL=${EVOLUTION_SERVER_URL:-http://evolution-api:8080}
+      - SERVER_URL=${EVOLUTION_SERVER_URL:-http://localhost:8080}
       - CORS_ORIGIN=${EVOLUTION_CORS_ORIGIN:-*}
       - CORS_METHODS=${EVOLUTION_CORS_METHODS:-GET,POST,PUT,DELETE}
       - CORS_CREDENTIALS=${EVOLUTION_CORS_CREDENTIALS:-true}
@@ -216,7 +216,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_postgres}
 
       # Redis
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-change_me_redis}@redis:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
 
       # Email (SMTP)
