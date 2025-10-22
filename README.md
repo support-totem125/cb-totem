@@ -1,4 +1,4 @@
-# 🚀 Easy Panel - Stack de Servicios Docker
+# 🚀 Chatbot Totem - Stack de Servicios Docker
 
 Stack completo con Evolution API, Chatwoot y n8n para automatización y atención al cliente.
 
