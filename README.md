@@ -4,7 +4,7 @@ Stack completo con Evolution API, Chatwoot y n8n para automatización y atenció
 
 ## 📦 Servicios Incluidos
 
-- **Evolution API v2.1.1** - API de WhatsApp (Puerto 8080)
+- **Evolution API v2.2.3** - API de WhatsApp (Puerto 8080)
 - **Chatwoot** - Plataforma de atención al cliente (Puerto 3000)
 - **n8n** - Automatización de workflows (Puerto 5678)
 - **PostgreSQL 15** - Base de datos compartida
