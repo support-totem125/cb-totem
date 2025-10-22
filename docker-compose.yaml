@@ -37,9 +37,11 @@ services:
 
   # Evolution API v2 - WhatsApp API
   evolution-api:
-    image: atendai/evolution-api:v2.2.3
+    image: atendai/evolution-api:latest
     container_name: evolution_api
     restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "${EVOLUTION_SERVER_PORT:-8080}:8080"
     environment:
@@ -198,6 +200,8 @@ services:
     image: chatwoot/chatwoot:latest
     container_name: chatwoot_web
     restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "3000:3000"
     environment:
@@ -260,6 +264,8 @@ services:
     image: chatwoot/chatwoot:latest
     container_name: chatwoot_sidekiq
     restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     environment:
       # Rails
       - RAILS_ENV=${RAILS_ENV:-production}
@@ -297,6 +303,8 @@ services:
     image: n8nio/n8n:latest
     container_name: n8n
     restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "5678:5678"
     environment:
@@ -348,6 +356,8 @@ services:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
     restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "5050:80"
     environment:
@@ -359,6 +369,30 @@ services:
       - app_network
     depends_on:
       - postgres
+
+  # Watchtower - Auto-actualización de contenedores
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: always
+    environment:
+      # Verificar actualizaciones cada 60 segundos (1 minuto)
+      - WATCHTOWER_POLL_INTERVAL=60
+      # Limpiar imágenes antiguas después de actualizar
+      - WATCHTOWER_CLEANUP=true
+      # Solo actualizar servicios con label específico
+      - WATCHTOWER_LABEL_ENABLE=true
+      # Esperar 30 segundos para graceful shutdown
+      - WATCHTOWER_STOP_TIMEOUT=30s
+      # Mostrar logs detallados
+      - WATCHTOWER_DEBUG=false
+      # No actualizar watchtower a sí mismo (opcional)
+      - WATCHTOWER_INCLUDE_STOPPED=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app_network
+    # Sin puertos expuestos (servicio interno)
 
 volumes:
   postgres_data:
