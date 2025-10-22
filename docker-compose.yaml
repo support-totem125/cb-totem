@@ -83,7 +83,7 @@ services:
 
       # Redis Cache
       - CACHE_REDIS_ENABLED=${CACHE_REDIS_ENABLED:-true}
-      - CACHE_REDIS_URI=redis://:${REDIS_PASSWORD:-change_me_redis}@redis:6379
+      - CACHE_REDIS_URI=redis://:${REDIS_PASSWORD:}@redis:6379
       - CACHE_REDIS_TTL=${CACHE_REDIS_TTL:-604800}
       - CACHE_REDIS_PREFIX_KEY=${CACHE_REDIS_PREFIX_KEY:-evolution}
       - CACHE_REDIS_SAVE_INSTANCES=${CACHE_REDIS_SAVE_INSTANCES:-false}
@@ -216,8 +216,8 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_postgres}
 
       # Redis
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-change_me_redis}@redis:6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-change_me_redis}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:}@redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:}
 
       # Email (SMTP)
       - SMTP_ADDRESS=${SMTP_ADDRESS:-smtp.gmail.com}
