@@ -1,0 +1,123 @@
+# ==============================================
+# Easy Panel - Git Ignore
+# ==============================================
+
+# Archivos de entorno y configuración sensible
+.env
+.env.local
+.env.*.local
+*.env
+
+# Backups de base de datos
+backups/
+*.sql
+*.dump
+*.backup
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Datos de Docker volumes (si se exportan)
+data/
+volumes/
+postgres_data/
+redis_data/
+evolution_instances/
+evolution_store/
+chatwoot_data/
+n8n_data/
+n8n_files/
+
+# Archivos temporales del sistema
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# IDEs y editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+*.iml
+
+# Node modules (si se usan herramientas de Node)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python (si se usan scripts de Python)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Certificados SSL
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+ssl/
+certs/
+
+# Archivos de Docker
+docker-compose.override.yml
+.dockerignore
+
+# Scripts personalizados temporales
+test.sh
+temp.sh
+debug.sh
+
+# Archivos de macOS
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Archivos de Windows
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Archivos de Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Archivos comprimidos
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Documentación generada
+docs/build/
+site/
+
+# Archivos de caché
+.cache/
+*.cache
+
+# Variables de entorno de respaldo (mantener .env.example si existe)
+!.env.example
+!.env.sample
+!.env.template

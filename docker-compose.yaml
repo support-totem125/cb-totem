@@ -1,0 +1,378 @@
+services:
+  # PostgreSQL - Base de datos compartida
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_postgres}
+      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_MULTIPLE_DATABASES:-evolution,chatwoot,n8n}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/create-multiple-databases.sh:/docker-entrypoint-initdb.d/create-multiple-databases.sh
+    networks:
+      - app_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis - Cache compartido
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD:-change_me_redis}
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Evolution API v2 - WhatsApp API
+  evolution-api:
+    image: atendai/evolution-api:v2.2.3
+    container_name: evolution_api
+    restart: always
+    ports:
+      - "${EVOLUTION_SERVER_PORT:-8080}:8080"
+    environment:
+      # Servidor
+      - SERVER_TYPE=${EVOLUTION_SERVER_TYPE:-http}
+      - SERVER_PORT=${SERVER_PORT:-8080}
+      - SERVER_URL=${EVOLUTION_SERVER_URL:-http://localhost:8080}
+      - CORS_ORIGIN=${EVOLUTION_CORS_ORIGIN:-*}
+      - CORS_METHODS=${EVOLUTION_CORS_METHODS:-GET,POST,PUT,DELETE}
+      - CORS_CREDENTIALS=${EVOLUTION_CORS_CREDENTIALS:-true}
+
+      # Logging
+      - LOG_LEVEL=${EVOLUTION_LOG_LEVEL:-ERROR,WARN,INFO,LOG}
+      - LOG_COLOR=${EVOLUTION_LOG_COLOR:-true}
+      - LOG_BAILEYS=${EVOLUTION_LOG_BAILEYS:-error}
+
+      # Configuración
+      - EVENT_EMITTER_MAX_LISTENERS=${EVOLUTION_EVENT_EMITTER_MAX_LISTENERS:-50}
+      - DEL_INSTANCE=${EVOLUTION_DEL_INSTANCE:-false}
+      - LANGUAGE=${EVOLUTION_LANGUAGE:-es}
+
+      # Autenticación
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY:-change_me_evolution_key}
+      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=${AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES:-true}
+
+      # Base de datos PostgreSQL
+      - DATABASE_ENABLED=${DATABASE_ENABLED:-true}
+      - DATABASE_PROVIDER=${DATABASE_PROVIDER:-postgresql}
+      - DATABASE_CONNECTION_URI=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-change_me_postgres}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/evolution
+      - DATABASE_CONNECTION_CLIENT_NAME=${PROJECT_NAME:-evolution}_client
+      - DATABASE_SAVE_DATA_INSTANCE=${DATABASE_SAVE_DATA_INSTANCE:-true}
+      - DATABASE_SAVE_DATA_NEW_MESSAGE=${DATABASE_SAVE_DATA_NEW_MESSAGE:-true}
+      - DATABASE_SAVE_MESSAGE_UPDATE=${DATABASE_SAVE_MESSAGE_UPDATE:-true}
+      - DATABASE_SAVE_DATA_CONTACTS=${DATABASE_SAVE_DATA_CONTACTS:-true}
+      - DATABASE_SAVE_DATA_CHATS=${DATABASE_SAVE_DATA_CHATS:-true}
+      - DATABASE_SAVE_DATA_LABELS=${DATABASE_SAVE_DATA_LABELS:-true}
+      - DATABASE_SAVE_DATA_HISTORIC=${DATABASE_SAVE_DATA_HISTORIC:-true}
+      - DATABASE_SAVE_IS_ON_WHATSAPP=${DATABASE_SAVE_IS_ON_WHATSAPP:-true}
+      - DATABASE_SAVE_IS_ON_WHATSAPP_DAYS=${DATABASE_SAVE_IS_ON_WHATSAPP_DAYS:-7}
+      - DATABASE_DELETE_MESSAGE=${DATABASE_DELETE_MESSAGE:-true}
+
+      # Redis Cache
+      - CACHE_REDIS_ENABLED=${CACHE_REDIS_ENABLED:-true}
+      - CACHE_REDIS_URI=redis://:${REDIS_PASSWORD:-change_me_redis}@redis:6379
+      - CACHE_REDIS_TTL=${CACHE_REDIS_TTL:-604800}
+      - CACHE_REDIS_PREFIX_KEY=${CACHE_REDIS_PREFIX_KEY:-evolution}
+      - CACHE_REDIS_SAVE_INSTANCES=${CACHE_REDIS_SAVE_INSTANCES:-false}
+      - CACHE_LOCAL_ENABLED=${CACHE_LOCAL_ENABLED:-false}
+
+      # Webhooks
+      - WEBHOOK_GLOBAL_ENABLED=${EVOLUTION_WEBHOOK_GLOBAL_ENABLED:-false}
+      - WEBHOOK_GLOBAL_URL=${EVOLUTION_WEBHOOK_GLOBAL_URL:-}
+      - WEBHOOK_GLOBAL_WEBHOOK_BY_EVENTS=${EVOLUTION_WEBHOOK_BY_EVENTS:-false}
+      - WEBHOOK_EVENTS_APPLICATION_STARTUP=${WEBHOOK_EVENTS_APPLICATION_STARTUP:-false}
+      - WEBHOOK_EVENTS_QRCODE_UPDATED=${EVOLUTION_WEBHOOK_EVENTS_QRCODE_UPDATED:-true}
+      - WEBHOOK_EVENTS_MESSAGES_SET=${WEBHOOK_EVENTS_MESSAGES_SET:-true}
+      - WEBHOOK_EVENTS_MESSAGES_UPSERT=${EVOLUTION_WEBHOOK_EVENTS_MESSAGES_UPSERT:-true}
+      - WEBHOOK_EVENTS_MESSAGES_EDITED=${WEBHOOK_EVENTS_MESSAGES_EDITED:-true}
+      - WEBHOOK_EVENTS_MESSAGES_UPDATE=${EVOLUTION_WEBHOOK_EVENTS_MESSAGES_UPDATE:-true}
+      - WEBHOOK_EVENTS_MESSAGES_DELETE=${WEBHOOK_EVENTS_MESSAGES_DELETE:-true}
+      - WEBHOOK_EVENTS_SEND_MESSAGE=${WEBHOOK_EVENTS_SEND_MESSAGE:-true}
+      - WEBHOOK_EVENTS_CONTACTS_SET=${WEBHOOK_EVENTS_CONTACTS_SET:-true}
+      - WEBHOOK_EVENTS_CONTACTS_UPSERT=${WEBHOOK_EVENTS_CONTACTS_UPSERT:-true}
+      - WEBHOOK_EVENTS_CONTACTS_UPDATE=${WEBHOOK_EVENTS_CONTACTS_UPDATE:-true}
+      - WEBHOOK_EVENTS_PRESENCE_UPDATE=${WEBHOOK_EVENTS_PRESENCE_UPDATE:-true}
+      - WEBHOOK_EVENTS_CHATS_SET=${WEBHOOK_EVENTS_CHATS_SET:-true}
+      - WEBHOOK_EVENTS_CHATS_UPSERT=${WEBHOOK_EVENTS_CHATS_UPSERT:-true}
+      - WEBHOOK_EVENTS_CHATS_UPDATE=${WEBHOOK_EVENTS_CHATS_UPDATE:-true}
+      - WEBHOOK_EVENTS_CHATS_DELETE=${WEBHOOK_EVENTS_CHATS_DELETE:-true}
+      - WEBHOOK_EVENTS_GROUPS_UPSERT=${WEBHOOK_EVENTS_GROUPS_UPSERT:-true}
+      - WEBHOOK_EVENTS_GROUPS_UPDATE=${WEBHOOK_EVENTS_GROUPS_UPDATE:-true}
+      - WEBHOOK_EVENTS_GROUP_PARTICIPANTS_UPDATE=${WEBHOOK_EVENTS_GROUP_PARTICIPANTS_UPDATE:-true}
+      - WEBHOOK_EVENTS_CONNECTION_UPDATE=${EVOLUTION_WEBHOOK_EVENTS_CONNECTION_UPDATE:-true}
+      - WEBHOOK_EVENTS_LABELS_EDIT=${WEBHOOK_EVENTS_LABELS_EDIT:-true}
+      - WEBHOOK_EVENTS_LABELS_ASSOCIATION=${WEBHOOK_EVENTS_LABELS_ASSOCIATION:-true}
+      - WEBHOOK_EVENTS_CALL=${EVOLUTION_WEBHOOK_EVENTS_CALL:-true}
+      - WEBHOOK_EVENTS_TYPEBOT_START=${WEBHOOK_EVENTS_TYPEBOT_START:-false}
+      - WEBHOOK_EVENTS_TYPEBOT_CHANGE_STATUS=${WEBHOOK_EVENTS_TYPEBOT_CHANGE_STATUS:-false}
+      - WEBHOOK_EVENTS_ERRORS=${WEBHOOK_EVENTS_ERRORS:-false}
+
+      # RabbitMQ (opcional)
+      - RABBITMQ_ENABLED=${RABBITMQ_ENABLED:-false}
+      - RABBITMQ_URI=${RABBITMQ_URI:-amqp://localhost}
+      - RABBITMQ_EXCHANGE_NAME=${RABBITMQ_EXCHANGE_NAME:-evolution}
+      - RABBITMQ_GLOBAL_ENABLED=${RABBITMQ_GLOBAL_ENABLED:-false}
+
+      # WebSocket
+      - WEBSOCKET_ENABLED=${EVOLUTION_WEBSOCKET_ENABLED:-false}
+      - WEBSOCKET_GLOBAL_EVENTS=${EVOLUTION_WEBSOCKET_GLOBAL_EVENTS:-false}
+
+      # Pusher
+      - PUSHER_ENABLED=${PUSHER_ENABLED:-false}
+      - PUSHER_GLOBAL_ENABLED=${PUSHER_GLOBAL_ENABLED:-false}
+
+      # Amazon SQS
+      - SQS_ENABLED=${SQS_ENABLED:-false}
+
+      # S3 Storage
+      - S3_ENABLED=${S3_ENABLED:-false}
+      - S3_BUCKET=${S3_BUCKET:-evolution}
+      - S3_PORT=${S3_PORT:-443}
+      - S3_USE_SSL=${S3_USE_SSL:-true}
+
+      # QR Code
+      - QRCODE_LIMIT=${EVOLUTION_QRCODE_LIMIT:-30}
+      - QRCODE_COLOR=${EVOLUTION_QRCODE_COLOR:-#175197}
+
+      # Configuración de sesión
+      - CONFIG_SESSION_PHONE_CLIENT=${EVOLUTION_CONFIG_SESSION_PHONE_CLIENT:-Evolution API}
+      - CONFIG_SESSION_PHONE_NAME=${EVOLUTION_CONFIG_SESSION_PHONE_NAME:-Chrome}
+      - CONFIG_SESSION_PHONE_VERSION=${EVOLUTION_CONFIG_SESSION_PHONE_VERSION:-2.3000.1023204200}
+
+      # Integraciones
+      - TYPEBOT_ENABLED=${TYPEBOT_ENABLED:-false}
+      - TYPEBOT_API_VERSION=${TYPEBOT_API_VERSION:-latest}
+
+      - CHATWOOT_ENABLED=${CHATWOOT_ENABLED:-false}
+      - CHATWOOT_MESSAGE_READ=${CHATWOOT_MESSAGE_READ:-true}
+      - CHATWOOT_MESSAGE_DELETE=${CHATWOOT_MESSAGE_DELETE:-true}
+      - CHATWOOT_BOT_CONTACT=${CHATWOOT_BOT_CONTACT:-true}
+      - CHATWOOT_IMPORT_DATABASE_CONNECTION_URI=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-change_me_postgres}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/chatwoot?sslmode=disable
+      - CHATWOOT_IMPORT_PLACEHOLDER_MEDIA_MESSAGE=${CHATWOOT_IMPORT_PLACEHOLDER_MEDIA_MESSAGE:-true}
+
+      - OPENAI_ENABLED=${OPENAI_ENABLED:-false}
+      - DIFY_ENABLED=${DIFY_ENABLED:-false}
+
+      # WhatsApp Business API
+      - WA_BUSINESS_TOKEN_WEBHOOK=${WA_BUSINESS_TOKEN_WEBHOOK:-evolution}
+      - WA_BUSINESS_URL=${WA_BUSINESS_URL:-https://graph.facebook.com}
+      - WA_BUSINESS_VERSION=${WA_BUSINESS_VERSION:-v20.0}
+      - WA_BUSINESS_LANGUAGE=${WA_BUSINESS_LANGUAGE:-es_MX}
+
+      # Proxy
+      - PROXY_HOST=${PROXY_HOST:-}
+      - PROXY_PORT=${PROXY_PORT:-}
+      - PROXY_PROTOCOL=${PROXY_PROTOCOL:-}
+      - PROXY_USERNAME=${PROXY_USERNAME:-}
+      - PROXY_PASSWORD=${PROXY_PASSWORD:-}
+
+      # Sentry
+      - SENTRY_DSN=${SENTRY_DSN:-}
+
+    volumes:
+      - evolution_instances:/evolution/instances
+      - evolution_store:/evolution/store
+    networks:
+      - app_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Chatwoot - Plataforma de atención al cliente
+  chatwoot-web:
+    image: chatwoot/chatwoot:latest
+    container_name: chatwoot_web
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Rails
+      - RAILS_ENV=${RAILS_ENV:-production}
+      - SECRET_KEY_BASE=${CHATWOOT_SECRET_KEY_BASE:-replace_with_lengthy_secure_hex}
+
+      # Frontend URL
+      - FRONTEND_URL=${CHATWOOT_FRONTEND_URL:-http://localhost:3000}
+
+      # Database
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE_CHATWOOT:-chatwoot}
+      - POSTGRES_USERNAME=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_postgres}
+
+      # Redis
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-change_me_redis}@redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-change_me_redis}
+
+      # Email (SMTP)
+      - SMTP_ADDRESS=${SMTP_ADDRESS:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_DOMAIN=${SMTP_DOMAIN:-gmail.com}
+      - SMTP_USERNAME=${SMTP_USERNAME:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION:-plain}
+      - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO:-true}
+      - MAILER_SENDER_EMAIL=${MAILER_SENDER_EMAIL:-noreply@chatwoot.com}
+
+      # Storage (local por defecto, puede usar S3)
+      - ACTIVE_STORAGE_SERVICE=${ACTIVE_STORAGE_SERVICE:-local}
+
+      # Channels
+      - ENABLE_ACCOUNT_SIGNUP=${ENABLE_ACCOUNT_SIGNUP:-true}
+
+      # Force SSL
+      - FORCE_SSL=${FORCE_SSL:-false}
+
+      # Installation name
+      - INSTALLATION_NAME=${INSTALLATION_NAME:-Chatwoot}
+    volumes:
+      - chatwoot_data:/app/storage
+    networks:
+      - app_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    entrypoint: docker/entrypoints/rails.sh
+    command: [ 'bundle', 'exec', 'rails', 's', '-p', '3000', '-b', '0.0.0.0' ]
+
+  # Chatwoot Sidekiq - Worker para tareas en background
+  chatwoot-sidekiq:
+    image: chatwoot/chatwoot:latest
+    container_name: chatwoot_sidekiq
+    restart: always
+    environment:
+      # Rails
+      - RAILS_ENV=${RAILS_ENV:-production}
+      - SECRET_KEY_BASE=${CHATWOOT_SECRET_KEY_BASE:-replace_with_lengthy_secure_hex}
+
+      # Database
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE_CHATWOOT:-chatwoot}
+      - POSTGRES_USERNAME=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_postgres}
+
+      # Redis
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-change_me_redis}@redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-change_me_redis}
+
+      # Frontend URL
+      - FRONTEND_URL=${CHATWOOT_FRONTEND_URL:-http://localhost:3000}
+    volumes:
+      - chatwoot_data:/app/storage
+    networks:
+      - app_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: bundle exec sidekiq -C config/sidekiq.yml
+
+  # n8n - Automatización de workflows
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      # Basic Configuration
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=${N8N_PORT:-5678}
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      # Desactivar cookie segura en desarrollo para permitir HTTP (evita el aviso de secure cookie)
+      - N8N_SECURE_COOKIE=${N8N_SECURE_COOKIE:-false}
+
+      # Database
+      - DB_TYPE=${DB_TYPE:-postgresdb}
+      - DB_POSTGRESDB_HOST=${POSTGRES_HOST:-postgres}
+      - DB_POSTGRESDB_PORT=${POSTGRES_PORT:-5432}
+      - DB_POSTGRESDB_DATABASE=${DB_POSTGRESDB_DATABASE:-n8n}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER:-postgres}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-change_me_postgres}
+
+      # Execution
+      - EXECUTIONS_MODE=${EXECUTIONS_MODE:-regular}
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=${EXECUTIONS_DATA_SAVE_ON_ERROR:-all}
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=${EXECUTIONS_DATA_SAVE_ON_SUCCESS:-all}
+      - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=${EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS:-true}
+
+      # Timezone
+      - GENERIC_TIMEZONE=${TZ:-America/Mexico_City}
+
+      # Security
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-change_me_n8n}
+
+      # Encryption key (importante para credenciales)
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-}
+      # Enforce safe permissions for settings file (recomendado por n8n)
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=${N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS:-true}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - n8n_files:/files
+    networks:
+      - app_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # pgAdmin - Interfaz web para administrar Postgres
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:-admin@localhost.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:-admin}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - app_network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  evolution_instances:
+    driver: local
+  evolution_store:
+    driver: local
+  chatwoot_data:
+    driver: local
+  n8n_data:
+    driver: local
+  n8n_files:
+    driver: local
+
+  pgadmin_data:
+    driver: local
+
+networks:
+  app_network:
+    driver: bridge
