@@ -300,7 +300,7 @@ services:
 
   # n8n - Automatización de workflows
   n8n:
-    image: n8nio/n8n:latest
+    image: n8nio/n8n:stable
     container_name: n8n
     restart: always
     labels:
@@ -315,6 +315,9 @@ services:
       - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
       # Desactivar cookie segura en desarrollo para permitir HTTP (evita el aviso de secure cookie)
       - N8N_SECURE_COOKIE=${N8N_SECURE_COOKIE:-false}
+
+      # Task Runners (recomendado)
+      - N8N_RUNNERS_ENABLED=true
 
       # Database
       - DB_TYPE=${DB_TYPE:-postgresdb}
