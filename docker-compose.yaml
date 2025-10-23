@@ -318,7 +318,6 @@ services:
 
       # Task Runners (recomendado)
       - N8N_RUNNERS_ENABLED=true
-
       # Database
       - DB_TYPE=${DB_TYPE:-postgresdb}
       - DB_POSTGRESDB_HOST=${POSTGRES_HOST:-postgres}
@@ -345,6 +344,9 @@ services:
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-}
       # Enforce safe permissions for settings file (recomendado por n8n)
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=${N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS:-true}
+      # Seguridad y compatibilidad
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
     volumes:
       - n8n_data:/home/node/.n8n
       - n8n_files:/files
