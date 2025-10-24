@@ -361,8 +361,6 @@ services:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
     restart: always
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "5050:80"
     environment:
