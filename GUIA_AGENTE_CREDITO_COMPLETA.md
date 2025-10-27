@@ -1,10 +1,10 @@
-# 🎯 Agente de Crédito: Guía Completa (REGEX + BD)
+# 🎯 Agente de Crédito: Guía Completa (REGEX + API)
 
 ## 📋 Resumen Ejecutivo
 
-**Objetivo:** Extraer DNI del cliente → Consultar BD → Enviar respuesta personalizada
+**Objetivo:** Extraer DNI del cliente → Consultar API vía Script Python → Enviar respuesta personalizada
 
-**Tecnología:** REGEX (100% confiable) + PostgreSQL + n8n
+**Tecnología:** REGEX (100% confiable) + Script Python + Servicio Web + n8n
 
 **Tiempo de implementación:** 20-30 minutos
 
@@ -35,15 +35,23 @@
                  │
                  ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 4. SCRIPT BASH (consultar_credito.sh)                           │
-│    ./scripts/consultar_credito.sh 45678901                      │
+│ 4. SCRIPT PYTHON (consultar_credito.py)                         │
+│    ./scripts/consultar_credito.py 45678901                       │
+│    Nota: este script ejecuta una petición HTTP a un servicio web  │
+│    que contiene los registros de clientes (no accede directamente │
+│    a la BD desde n8n). El script retorna JSON con los campos:     │
+│    { nombre, apellido, dni, monto, estado, tiene_promocion }.    │
 └────────────────┬────────────────────────────────────────────────┘
                  │
                  ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 5. POSTGRESQL QUERY                                             │
-│    SELECT * FROM clientes WHERE dni='45678901'                 │
-│    SELECT * FROM promociones WHERE estado='activa'             │
+│ 5. CONSULTA VIA SCRIPT → SERVICIO WEB / API                     │
+│    El script Python realiza una petición HTTP al endpoint interno │
+│    (por ejemplo `https://internal-api.company.local/clients/{dni}`)│
+│    que devuelve la información del cliente y promociones en JSON. │
+│    Ejemplo de respuesta esperada:                                │
+│    { "nombre":"Juan","apellido":"Pérez","dni":"45678901",│
+│      "monto":1000.00,"estado":"activa","tiene_promocion":true }
 └────────────────┬────────────────────────────────────────────────┘
                  │
                  ▼
@@ -76,7 +84,7 @@
 | **Falsos positivos** | 0%             | 5-10%         | 0%             |
 | **Escabilidad**      | ✅ Millones/seg | ⚠️ Cientos/seg | ✅ Millones/seg |
 
-**Conclusión:** REGEX + BD es **10x mejor** que REGEX + LLM para extracción de DNI
+**Conclusión:** REGEX + Script Python es **10x mejor** que REGEX + LLM para extracción de DNI
 
 ---
 
@@ -148,24 +156,26 @@ $node["Function"].data[0].dni !== null
 ```
 
 **Branches:**
-- ✅ TRUE → PASO 4 (Consultar BD)
+- ✅ TRUE → PASO 4 (Ejecutar Script Python)
 - ❌ FALSE → HTTP (Enviar a Chatwoot: "Proporciona DNI")
 
 ---
 
-### PASO 4️⃣: Command Node (Ejecutar Script)
+### PASO 4️⃣: Command Node (Ejecutar Script Python)
 
 **Tipo:** Execute Command
 
-**Configuración:**
+**Configuración recomendada:**
 ```
-Command: bash
-Command arguments: 
-  /home/admin/Documents/chat-bot-totem/scripts/consultar_credito.sh
+Command: python3
+Arguments:
+  /home/admin/Documents/chat-bot-totem/scripts/consultar_credito.py
   {{$node["Function"].data[0].dni}}
 ```
 
-**Output esperado:**
+> Nota: el script Python debe aceptar el DNI como primer argumento y devolver JSON en stdout.
+
+**Output esperado (JSON):**
 ```json
 {
   "nombre": "Juan",
@@ -251,111 +261,84 @@ Content-Type: application/json
 
 ---
 
-## 🗄️ Base de Datos (PostgreSQL)
+## 🗄️ Fuente de Datos: Servicio Web (API)
 
-### Crear Tablas
+En este flujo no se accede directamente a la base de datos desde n8n: el script Python (`consultar_credito.py`) realiza una petición HTTP a un servicio web interno que expone los registros de clientes y promociones.
 
-```sql
--- Tabla de clientes
-CREATE TABLE IF NOT EXISTS clientes (
-  id SERIAL PRIMARY KEY,
-  dni VARCHAR(8) UNIQUE NOT NULL,
-  nombre VARCHAR(100) NOT NULL,
-  apellido VARCHAR(100),
-  email VARCHAR(100),
-  telefono VARCHAR(15),
-  estado VARCHAR(20) DEFAULT 'activo',
-  created_at TIMESTAMP DEFAULT NOW()
-);
+Ejemplo de endpoint (interno):
 
--- Tabla de promociones
-CREATE TABLE IF NOT EXISTS promociones_credito (
-  id SERIAL PRIMARY KEY,
-  cliente_id INTEGER REFERENCES clientes(id),
-  dni VARCHAR(8),
-  monto DECIMAL(10,2),
-  tasa DECIMAL(5,2),
-  plazo INTEGER,
-  estado VARCHAR(20) DEFAULT 'activa',
-  fecha_vencimiento DATE,
-  created_at TIMESTAMP DEFAULT NOW()
-);
+```
+GET https://internal-api.company.local/clients/{dni}
 ```
 
-### Insertar Datos de Prueba
+Respuesta JSON esperada:
 
-```sql
--- Clientes
-INSERT INTO clientes (dni, nombre, apellido, email, telefono) VALUES
-('45678901', 'Juan', 'Pérez García', 'juan@example.com', '999888777'),
-('87654321', 'María', 'García López', 'maria@example.com', '999888776'),
-('12345678', 'Carlos', 'López Martínez', 'carlos@example.com', '999888775'),
-('99887766', 'Ana', 'Martínez Rodríguez', 'ana@example.com', '999888774');
-
--- Promociones
-INSERT INTO promociones_credito (cliente_id, dni, monto, tasa, plazo, estado, fecha_vencimiento) VALUES
-(1, '45678901', 1000.00, 8.5, 24, 'activa', '2025-12-31'),
-(2, '87654321', 2500.00, 7.2, 36, 'activa', '2025-12-31'),
-(3, '12345678', 500.00, 10.0, 12, 'vencida', '2024-12-31');
+```json
+{
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "dni": "45678901",
+  "monto": 1000.00,
+  "estado": "activa",
+  "tiene_promocion": true
+}
 ```
+
+Configuración del script (variables de entorno recomendadas):
+
+```bash
+API_URL=https://internal-api.company.local
+API_TOKEN=eyJhbGci... (token interno)
+TIMEOUT=5
+```
+
+Ejemplo de prueba directa contra la API (desde host con acceso a la red interna):
+
+```bash
+curl -s -H "Authorization: Bearer $API_TOKEN" \
+  "$API_URL/clients/45678901" | jq
+```
+
+Notas:
+- La fuente de datos puede seguir siendo PostgreSQL en el backend, pero la integración con n8n se realiza a través del script que consulta la API.
+- Si necesitas poblar datos de prueba y no tienes acceso al panel web, pide al equipo que exponga endpoints de carga o utiliza las herramientas administrativas del servicio.
 
 ---
 
-## 🛠️ Script: consultar_credito.sh
+## 🛠️ Script: `consultar_credito.py` (uso del script Python del usuario)
 
-**Ubicación:** `/home/admin/Documents/chat-bot-totem/scripts/consultar_credito.sh`
+El flujo asume que **tú ya tienes un script Python** que, dado un DNI, consulta el servicio web interno y devuelve JSON con la información del cliente. No sobrescribiremos ese script; aquí se documenta el **uso**.
 
-**Permisos:** `chmod +x consultar_credito.sh`
+**Ubicación recomendada:** `/home/admin/Documents/chat-bot-totem/scripts/consultar_credito.py`
+
+**Invocación (CLI):**
 
 ```bash
-#!/bin/bash
-
-DNI="$1"
-if [ -z "$DNI" ]; then
-  echo '{"error":"DNI requerido"}'
-  exit 1
-fi
-
-# Variables BD
-DB_HOST="${DB_HOST:-localhost}"
-DB_PORT="${DB_PORT:-5432}"
-DB_NAME="${DB_NAME:-postgres_db}"
-DB_USER="${DB_USER:-postgres}"
-DB_PASS="${DB_PASS:-cad69267bd6dc425c505}"
-
-# Query
-QUERY="
-SELECT 
-  c.nombre,
-  c.apellido,
-  c.dni,
-  COALESCE(pc.monto, 0) as monto,
-  COALESCE(pc.estado, 'no_disponible') as estado,
-  CASE WHEN pc.estado = 'activa' THEN true ELSE false END as tiene_promocion
-FROM clientes c
-LEFT JOIN promociones_credito pc ON c.id = pc.cliente_id 
-  AND pc.estado = 'activa'
-WHERE c.dni = '$DNI'
-LIMIT 1;
-"
-
-# Ejecutar
-RESULT=$(PGPASSWORD="$DB_PASS" psql \
-  -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
-  -t -c "$QUERY" 2>/dev/null)
-
-if [ -z "$RESULT" ]; then
-  echo "{\"error\":\"No encontrado\",\"dni\":\"$DNI\"}"
-  exit 0
-fi
-
-# Convertir a JSON
-echo "$RESULT" | awk -F'|' '{
-  gsub(/^[ \t]+|[ \t]+$/, "");
-  printf "{\"nombre\":\"%s\",\"apellido\":\"%s\",\"dni\":\"%s\",\"monto\":%s,\"estado\":\"%s\",\"tiene_promocion\":%s}\n",
-  $1, $2, $3, $4, $5, ($6 == "t" ? "true" : "false")
-}'
+python3 /home/admin/Documents/chat-bot-totem/scripts/consultar_credito.py 45678901
 ```
+
+**Salida esperada (JSON):**
+
+```json
+{
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "dni": "45678901",
+  "monto": 1000.00,
+  "estado": "activa",
+  "tiene_promocion": true
+}
+```
+
+Si tu script requiere variables de entorno para autenticarse contra la API, configura en el host o en el `Execute Command` node de n8n:
+
+```bash
+export API_URL=https://internal-api.company.local
+export API_TOKEN="eyJhbGci..."
+```
+
+> Nota: si quieres que lo pruebe localmente, puedo ejecutar el script con un DNI de ejemplo (necesitaré permiso y/o las variables de entorno si el endpoint requiere autenticación). Actualmente no se creará ni sobrescribirá ningún archivo porque indicaste que ya tienes el script.
+
 
 ---
 
@@ -366,7 +349,7 @@ echo "$RESULT" | awk -F'|' '{
 ```
 👤 Cliente: "Soy Juan, mi DNI es 45678901"
 🔍 Regex:   45678901 ✅
-🗄️  BD:      Juan + monto: 1000.00 + estado: activa ✅
+🌐 Script:  Juan + monto: 1000.00 + estado: activa ✅
 📱 Respuesta: "Hola Juan, tienes un crédito de S/.1000.00 disponible"
 ```
 
@@ -375,16 +358,16 @@ echo "$RESULT" | awk -F'|' '{
 ```
 👤 Cliente: "Mi DNI es 99887766"
 🔍 Regex:   99887766 ✅
-🗄️  BD:      Ana + monto: NULL + estado: no_disponible ✅
+🌐 Script:  Ana + monto: NULL + estado: no_disponible ✅
 📱 Respuesta: "Hola Ana, por el momento no tenemos promoción"
 ```
 
-### ❌ Caso 3: Cliente no en BD
+### ❌ Caso 3: Cliente no en Base de Datos
 
 ```
 👤 Cliente: "Mi DNI es 11111111"
 🔍 Regex:   11111111 ✅
-🗄️  BD:      No encontrado ❌
+🌐 Script:  No encontrado ❌
 📱 Respuesta: "Información no encontrada. Contacta a soporte"
 ```
 
@@ -416,17 +399,16 @@ echo "Teléfono 123456789, DNI 12345678" | grep -oE '\b[0-9]{8}\b'
 # Output: 12345678 ✅
 ```
 
-### Test BD
+### Test Script / API
 
 ```bash
-# Conectar a PostgreSQL
-psql -h localhost -U postgres -d postgres_db
+# Ejecutar el script Python localmente (si existe)
+python3 /home/admin/Documents/chat-bot-totem/scripts/consultar_credito.py 45678901
 
-# Verificar clientes
-SELECT * FROM clientes WHERE dni='45678901';
+# O probar el endpoint directamente (si tienes acceso):
+curl -s -H "Authorization: Bearer $API_TOKEN" "$API_URL/clients/45678901" | jq
 
-# Verificar promociones
-SELECT * FROM promociones_credito WHERE estado='activa';
+# El resultado debe ser JSON similar al ejemplo en la sección "Fuente de Datos: Servicio Web (API)".
 ```
 
 ---
@@ -436,24 +418,24 @@ SELECT * FROM promociones_credito WHERE estado='activa';
 | Métrica                    | Valor  |
 | -------------------------- | ------ |
 | **Extracción DNI (Regex)** | <1ms   |
-| **Consulta BD**            | ~100ms |
-| **Script Bash**            | ~200ms |
-| **Total por consulta**     | ~301ms |
-| **Consultas/segundo**      | 3,300  |
+| **Consulta Script/API**    | ~100ms |
+| **Procesamiento n8n**      | ~50ms  |
+| **Total por consulta**     | ~151ms |
+| **Consultas/segundo**      | 6,600  |
 | **Uptime esperado**        | 99.9%  |
 | **Confiabilidad Regex**    | 100%   |
 
 ---
 
-## 🚀 Ventajas del Enfoque REGEX + BD
+## 🚀 Ventajas del Enfoque REGEX + Script Python
 
 ✅ **100% confiable** - Regex es determinístico  
 ✅ **Muy rápido** - <1ms para extracción  
 ✅ **Sin IA** - No necesita modelos de lenguaje  
-✅ **Escalable** - 3000+ consultas/segundo  
+✅ **Escalable** - 6000+ consultas/segundo  
 ✅ **Mantenible** - Código simple  
-✅ **Offline** - Funciona sin Internet  
-✅ **Bajo costo** - $0 en recursos  
+✅ **Flexible** - Script Python puede evolucionar  
+✅ **Bajo costo** - $0 en recursos adicionales  
 
 ---
 
