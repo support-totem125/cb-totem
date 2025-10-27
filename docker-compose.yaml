@@ -412,7 +412,8 @@ volumes:
     driver: local
   n8n_files:
     driver: local
-
+  ollama_data:
+    driver: local
   pgadmin_data:
     driver: local
 
