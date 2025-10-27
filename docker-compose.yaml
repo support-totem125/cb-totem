@@ -367,6 +367,7 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
       - n8n_files:/files
+      - /home/admin/Documents/chat-bot-totem/vcc-totem:/home/node/vcc-totem:ro
     networks:
       - app_network
     depends_on:
