@@ -3,7 +3,10 @@ services:
   postgres:
     image: pgvector/pgvector:pg15
     container_name: postgres_db
-    restart: always
+    restart: unless-stopped
+    mem_limit: 90m
+    mem_reservation: 85m
+    cpus: 0.5
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_postgres}
@@ -15,50 +18,37 @@ services:
       - app_network
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
-
-  # pgAdmin - Interfaz web para administrar Postgres
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin
-    restart: always
-    ports:
-      - "5050:80"
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:-admin@localhost.com}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:-admin}
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - app_network
-    depends_on:
-      - postgres
+      retries: 3
 
   # Redis - Cache compartido
   redis:
     image: redis:7-alpine
     container_name: redis_cache
-    restart: always
-    command: redis-server --requirepass ${REDIS_PASSWORD:-change_me_redis}
+    restart: unless-stopped
+    mem_limit: 10m
+    mem_reservation: 8m
+    cpus: 0.3
+    command: redis-server --requirepass ${REDIS_PASSWORD:-change_me_redis} --maxmemory 100mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     networks:
       - app_network
     healthcheck:
       test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-change_me_redis}", "--raw", "incr", "ping" ]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
 
   # Evolution API v2 - WhatsApp API
   evolution-api:
     image: atendai/evolution-api:latest
     container_name: evolution_api
-    restart: always
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
+    mem_limit: 200m
+    mem_reservation: 125m
+    cpus: 1.0
     ports:
       - "${EVOLUTION_SERVER_PORT:-8080}:8080"
     environment:
@@ -70,9 +60,9 @@ services:
       - CORS_METHODS=${EVOLUTION_CORS_METHODS:-GET,POST,PUT,DELETE}
       - CORS_CREDENTIALS=${EVOLUTION_CORS_CREDENTIALS:-true}
 
-      # Logging
-      - LOG_LEVEL=${EVOLUTION_LOG_LEVEL:-ERROR,WARN,INFO,LOG}
-      - LOG_COLOR=${EVOLUTION_LOG_COLOR:-true}
+      # Logging (reducido para menor consumo)
+      - LOG_LEVEL=${EVOLUTION_LOG_LEVEL:-ERROR,WARN}
+      - LOG_COLOR=${EVOLUTION_LOG_COLOR:-false}
       - LOG_BAILEYS=${EVOLUTION_LOG_BAILEYS:-error}
 
       # Configuración
@@ -216,14 +206,16 @@ services:
   chatwoot-web:
     image: chatwoot/chatwoot:latest
     container_name: chatwoot_web
-    restart: always
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
+    mem_limit: 180m
+    mem_reservation: 125m
+    cpus: 1.0
     ports:
       - "3000:3000"
     environment:
       # Rails
       - RAILS_ENV=${RAILS_ENV:-production}
+      - RAILS_MAX_THREADS=3
       - SECRET_KEY_BASE=${CHATWOOT_SECRET_KEY_BASE}
 
       # Frontend URL
@@ -280,13 +272,15 @@ services:
   chatwoot-sidekiq:
     image: chatwoot/chatwoot:latest
     container_name: chatwoot_sidekiq
-    restart: always
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
+    mem_limit: 400m
+    mem_reservation: 192m
+    cpus: 0.5
     environment:
       # Rails
       - RAILS_ENV=${RAILS_ENV:-production}
       - SECRET_KEY_BASE=${CHATWOOT_SECRET_KEY_BASE:-replace_with_lengthy_secure_hex}
+      - SIDEKIQ_CONCURRENCY=5
 
       # Database
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
@@ -319,9 +313,10 @@ services:
   n8n:
     image: n8nio/n8n:stable
     container_name: n8n
-    restart: always
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
+    mem_limit: 384m
+    mem_reservation: 192m
+    cpus: 0.5
     ports:
       - "5678:5678"
     environment:
@@ -378,7 +373,10 @@ services:
   calidda-api:
     image: python:3.11-slim
     container_name: calidda_api
-    restart: always
+    restart: unless-stopped
+    mem_limit: 125m
+    mem_reservation: 75m
+    cpus: 0.5
     working_dir: /src
     command: sh -c "pip install -q -r requirements.txt && python3 api_wrapper.py"
     ports:
@@ -391,34 +389,10 @@ services:
       - PYTHONUNBUFFERED=1
     healthcheck:
       test: [ "CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1" ]
-      interval: 10s
+      interval: 60s
       timeout: 5s
-      retries: 5
-      start_period: 20s
-
-  # Watchtower - Auto-actualización de contenedores
-  watchtower:
-    image: containrrr/watchtower:latest
-    container_name: watchtower
-    restart: always
-    environment:
-      # Verificar actualizaciones cada 60 segundos (1 minuto)
-      - WATCHTOWER_POLL_INTERVAL=60
-      # Limpiar imágenes antiguas después de actualizar
-      - WATCHTOWER_CLEANUP=true
-      # Solo actualizar servicios con label específico
-      - WATCHTOWER_LABEL_ENABLE=true
-      # Esperar 30 segundos para graceful shutdown
-      - WATCHTOWER_STOP_TIMEOUT=30s
-      # Mostrar logs detallados
-      - WATCHTOWER_DEBUG=false
-      # No actualizar watchtower a sí mismo (opcional)
-      - WATCHTOWER_INCLUDE_STOPPED=false
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - app_network
-    # Sin puertos expuestos (servicio interno)
+      retries: 3
+      start_period: 30s
 
 volumes:
   postgres_data:
@@ -435,10 +409,7 @@ volumes:
     driver: local
   n8n_files:
     driver: local
-  ollama_data:
-    driver: local
-  pgadmin_data:
-    driver: local
+  # pgadmin_data: # Deshabilitado junto con pgAdmin
 
 networks:
   app_network:
