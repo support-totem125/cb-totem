@@ -4,8 +4,8 @@ services:
     image: pgvector/pgvector:pg15
     container_name: postgres_db
     restart: unless-stopped
-    mem_limit: 90m
-    mem_reservation: 85m
+    mem_limit: 128m
+    mem_reservation: 64m
     cpus: 0.5
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -27,10 +27,10 @@ services:
     image: redis:7-alpine
     container_name: redis_cache
     restart: unless-stopped
-    mem_limit: 10m
-    mem_reservation: 8m
+    mem_limit: 64m
+    mem_reservation: 32m
     cpus: 0.3
-    command: redis-server --requirepass ${REDIS_PASSWORD:-change_me_redis} --maxmemory 100mb --maxmemory-policy allkeys-lru
+    command: redis-server --requirepass ${REDIS_PASSWORD:-change_me_redis} --maxmemory 50mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     networks:
@@ -46,8 +46,8 @@ services:
     image: atendai/evolution-api:latest
     container_name: evolution_api
     restart: unless-stopped
-    mem_limit: 200m
-    mem_reservation: 125m
+    mem_limit: 256m
+    mem_reservation: 128m
     cpus: 1.0
     ports:
       - "${EVOLUTION_SERVER_PORT:-8080}:8080"
@@ -207,8 +207,8 @@ services:
     image: chatwoot/chatwoot:latest
     container_name: chatwoot_web
     restart: unless-stopped
-    mem_limit: 180m
-    mem_reservation: 125m
+    mem_limit: 400m
+    mem_reservation: 256m
     cpus: 1.0
     ports:
       - "3000:3000"
@@ -273,8 +273,8 @@ services:
     image: chatwoot/chatwoot:latest
     container_name: chatwoot_sidekiq
     restart: unless-stopped
-    mem_limit: 400m
-    mem_reservation: 192m
+    mem_limit: 512m
+    mem_reservation: 256m
     cpus: 0.5
     environment:
       # Rails
@@ -374,8 +374,8 @@ services:
     image: python:3.11-slim
     container_name: calidda_api
     restart: unless-stopped
-    mem_limit: 125m
-    mem_reservation: 75m
+    mem_limit: 128m
+    mem_reservation: 64m
     cpus: 0.5
     working_dir: /src
     command: sh -c "pip install -q -r requirements.txt && python3 api_wrapper.py"
