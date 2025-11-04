@@ -40,6 +40,8 @@ show_menu() {
     echo "8)  ⚙️  Gestionar n8n"
     echo "9)  🗄️  Gestionar Base de Datos"
     echo "10) 💾 Gestionar Redis"
+    echo "11) 📷 Gestionar Servidor de Imágenes (srv-img)"
+    echo "12) 🔌 Gestionar API de Calidda (vcc-totem)"
     echo ""
     echo "11) 🔑 Generar claves y contraseñas"
     echo "12) 📦 Actualizar servicios"
