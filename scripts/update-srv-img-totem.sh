@@ -8,8 +8,8 @@
 
 set -e
 
-REPO_PATH="srv-img-totem"
-LOG_FILE="logs/srv-img-totem-updates.log"
+REPO_PATH="/home/admin/Documents/chat-bot-totem/srv-img-totem"
+LOG_FILE="/home/admin/Documents/chat-bot-totem/srv-img-totem-updates.log"
 GITHUB_REPO="https://github.com/support-totem125/srv-img-totem.git"
 
 # Crear directorio de logs si no existe
