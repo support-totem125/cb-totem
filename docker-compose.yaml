@@ -258,6 +258,7 @@ services:
       - INSTALLATION_NAME=${INSTALLATION_NAME:-Chatwoot}
     volumes:
       - chatwoot_data:/app/storage
+      - ./scripts/init-chatwoot.sh:/scripts/init-chatwoot.sh:ro
     networks:
       - app_network
     depends_on:
@@ -265,8 +266,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    entrypoint: docker/entrypoints/rails.sh
-    command: [ 'bundle', 'exec', 'rails', 's', '-p', '3000', '-b', '0.0.0.0' ]
+    entrypoint: /bin/bash
+    command: [ "/scripts/init-chatwoot.sh" ]
 
   # Chatwoot Sidekiq - Worker para tareas en background
   chatwoot-sidekiq:
@@ -362,7 +363,7 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
       - n8n_files:/files
-      - /home/admin/Documents/chat-bot-totem/vcc-totem:/home/node/vcc-totem:ro
+      - ./vcc-totem:/home/node/vcc-totem:ro
     networks:
       - app_network
     depends_on:
@@ -382,7 +383,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - /home/admin/Documents/chat-bot-totem/vcc-totem:/src
+      - ./vcc-totem:/src
     networks:
       - app_network
     environment:
@@ -407,7 +408,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - /home/admin/Documents/chat-bot-totem/srv-img-totem:/srv
+      - ./srv-img-totem:/srv
     networks:
       - app_network
     environment:
