@@ -96,7 +96,45 @@ docker-compose down
 
 ---
 
-## 🔵 Chatwoot
+## � Chatwoot
+
+### Chatwoot no inicia - Error de /bin/bash
+
+**Error exacto**:
+```
+Error response from daemon: failed to create task for container: 
+error during container init: exec: "/bin/bash": 
+stat /bin/bash: no such file or directory: unknown
+```
+
+**Contenedor afectado**: `chatwoot_web`
+
+**Causa**: 
+La imagen de Chatwoot usa Alpine Linux (imagen pequeña) que no tiene `/bin/bash`. El `docker-compose.yaml` estaba especificando un entrypoint incorrecto.
+
+**Solución**:
+```yaml
+# Cambiar en docker-compose.yaml, sección chatwoot-web:
+
+# ANTES (❌ Incorrecto):
+entrypoint: /bin/bash
+
+# DESPUÉS (✅ Correcto):
+entrypoint: /bin/sh
+```
+
+Luego reiniciar:
+```bash
+docker compose down
+docker compose up -d
+```
+
+**Explicación técnica**:
+- Alpine Linux es minimalista (~5MB vs ~100MB)
+- Solo tiene `/bin/sh` (POSIX shell), no `/bin/bash`
+- Tanto `/bin/sh` como `/bin/bash` funcionan para ejecutar scripts shell
+
+---
 
 ### Chatwoot no inicia / Crashea
 
