@@ -8,8 +8,10 @@
 
 set -e
 
-MAIN_REPO="/home/admin/Documents/chat-bot-totem"
-LOG_FILE="/home/admin/Documents/chat-bot-totem/logs/fetch-all-repos.log"
+# Obtener ruta del proyecto de forma dinámica
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MAIN_REPO="$(cd "$SCRIPT_DIR/.." && pwd)"
+LOG_FILE="$MAIN_REPO/logs/fetch-all-repos.log"
 
 # Crear directorio de logs si no existe
 mkdir -p "$(dirname "$LOG_FILE")"
