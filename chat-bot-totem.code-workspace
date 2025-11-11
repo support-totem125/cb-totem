@@ -1,0 +1,77 @@
+{
+    "folders": [
+        {
+            "path": ".",
+            "name": "🤖 Chat-Bot Totem (Main)"
+        },
+        {
+            "path": "vcc-totem",
+            "name": "🟣 VCC-Totem (Calidda API)"
+        },
+        {
+            "path": "srv-img-totem",
+            "name": "🖼️  SRV-IMG-Totem (Image Server)"
+        }
+    ],
+    "settings": {
+        "git.autorefresh": true,
+        "git.autofetch": true,
+        "git.autofetchPeriod": 300,
+        "git.ignoreLimitWarning": true,
+        "[python]": {
+            "editor.formatOnSave": true,
+            "editor.defaultFormatter": "ms-python.python",
+            "editor.rulers": [
+                80,
+                100
+            ]
+        },
+        "[markdown]": {
+            "editor.wordWrap": "on",
+            "editor.rulers": [
+                80
+            ]
+        },
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "files.exclude": {
+            "**/__pycache__": true,
+            "**/.pytest_cache": true,
+            "**/node_modules": true,
+            "**/*.pyc": true,
+            "**/.DS_Store": true
+        }
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Python: VCC-Totem",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder:🟣 VCC-Totem (Calidda API)}/src/main.py",
+                "console": "integratedTerminal",
+                "cwd": "${workspaceFolder:🟣 VCC-Totem (Calidda API)}"
+            },
+            {
+                "name": "Python: SRV-IMG-Totem",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder:🖼️  SRV-IMG-Totem (Image Server)}/main.py",
+                "console": "integratedTerminal",
+                "cwd": "${workspaceFolder:🖼️  SRV-IMG-Totem (Image Server)}"
+            }
+        ]
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-python.python",
+            "ms-python.vscode-pylance",
+            "ms-vscode.makefile-tools",
+            "eamodio.gitlens",
+            "donjayamanne.githistory",
+            "GitHub.copilot",
+            "yzhang.markdown-all-in-one"
+        ]
+    }
+}
