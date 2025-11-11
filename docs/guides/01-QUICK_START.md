@@ -4,9 +4,25 @@
 
 ---
 
+# ⚡ Inicio Rápido en 5 Minutos
+
+> 🎯 **Objetivo**: Tener Chat-Bot Totem funcionando completamente en 5 minutos
+
+---
+
 ## 📋 Paso a Paso
 
-### Paso 1: Copiar configuración (30 segundos)
+### Paso 1: Inicializar repositorios (30 segundos)
+
+```bash
+bash scripts/init-repos.sh
+```
+
+Este script clona automáticamente `vcc-totem` y `srv-img-totem` si no existen.
+
+---
+
+### Paso 2: Copiar configuración (30 segundos)
 
 ```bash
 cp .env.example .env
@@ -14,7 +30,7 @@ cp .env.example .env
 
 ---
 
-### Paso 2: Editar configuración (2 minutos)
+### Paso 3: Editar configuración (2 minutos)
 
 ```bash
 nano .env
@@ -42,7 +58,7 @@ openssl rand -hex 16
 
 ---
 
-### Paso 3: Iniciar (2 minutos)
+### Paso 4: Iniciar (2 minutos)
 
 ```bash
 docker-compose up -d
@@ -60,7 +76,7 @@ Creating n8n ... done
 
 ---
 
-### Paso 4: Verificar (1 minuto)
+### Paso 5: Verificar (1 minuto)
 
 ```bash
 docker-compose ps
