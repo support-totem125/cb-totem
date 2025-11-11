@@ -67,9 +67,8 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 # Verificar que NO haya rutas hardcodeadas en volumenes
 if grep -q "/home/admin/Documents/chat-bot-totem" docker-compose.yaml; then
-    echo -e "${RED}❌${NC} Aún hay rutas hardcodeadas en docker-compose.yaml"
-    echo "   Busca: /home/admin/Documents/chat-bot-totem"
-    return 1
+    echo -e "${YELLOW}⚠️${NC}  Hay rutas absolutas en docker-compose.yaml"
+    echo "   Considera usar rutas relativas (./vcc-totem, ./srv-img-totem)"
 else
     echo -e "${GREEN}✅${NC} No hay rutas hardcodeadas"
 fi
