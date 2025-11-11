@@ -6,7 +6,7 @@
 # Uso: ./scripts/init-repos.sh
 ################################################################################
 
-set -e
+set +e  # No salir en errores (manejar explícitamente)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -56,7 +56,7 @@ clone_repo() {
         fi
         
         # Clonar repo
-        if git clone "$repo_url" "$target_dir" 2>&1 | grep -q "Cloning"; then
+        if git clone "$repo_url" "$target_dir" >/dev/null 2>&1; then
             echo -e "  ${GREEN}✓${NC} Clonado exitosamente"
             
             # Mostrar información del repo
@@ -68,6 +68,7 @@ clone_repo() {
             
             # Volver al directorio raíz
             cd "$PROJECT_ROOT"
+            return 0  # Retornar 0 (fue clonado exitosamente)
         else
             echo -e "  ${RED}✗${NC} Error al clonar"
             return 1
@@ -84,13 +85,15 @@ clone_repo() {
             echo "  Commit: $commit"
         fi
         cd "$PROJECT_ROOT"
+        return 0  # Retornar 0 (no es un error)
     fi
     
     echo ""
 }
 
-# Configuración de repositorios
-declare -A REPOS=(
+# Configuración de repositorios (orden garantizado)
+declare -a REPO_NAMES=("vcc-totem" "srv-img-totem")
+declare -A REPO_URLS=(
     ["vcc-totem"]="https://github.com/diego-moscaiza/vcc-totem.git"
     ["srv-img-totem"]="https://github.com/diego-moscaiza/srv-img-totem.git"
 )
@@ -100,17 +103,18 @@ repos_cloned=0
 repos_skipped=0
 repos_failed=0
 
-for repo_name in "${!REPOS[@]}"; do
-    repo_url="${REPOS[$repo_name]}"
+for repo_name in "${REPO_NAMES[@]}"; do
+    repo_url="${REPO_URLS[$repo_name]}"
     
     if clone_repo "$repo_name" "$repo_url"; then
-        if is_directory_empty "$PROJECT_ROOT/$repo_name"; then
-            ((repos_skipped++))
-        else
-            ((repos_cloned++))
-        fi
-    else
+        # clone_repo retornó 0 (éxito), fue clonado
+        ((repos_cloned++))
+    elif is_directory_empty "$PROJECT_ROOT/$repo_name"; then
+        # No se clonó y tampoco existe - error
         ((repos_failed++))
+    else
+        # Ya existía, no se intentó clonar
+        ((repos_skipped++))
     fi
 done
 
