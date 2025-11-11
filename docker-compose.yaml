@@ -266,7 +266,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    entrypoint: /bin/bash
+    entrypoint: /bin/sh
     command: [ "/scripts/init-chatwoot.sh" ]
 
   # Chatwoot Sidekiq - Worker para tareas en background
