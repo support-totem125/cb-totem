@@ -8,12 +8,16 @@
 
 set -e
 
-REPO_PATH="/home/admin/Documents/chat-bot-totem/srv-img-totem"
-LOG_FILE="/home/admin/Documents/chat-bot-totem/srv-img-totem-updates.log"
+# Obtener ruta del proyecto de forma dinámica
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+REPO_PATH="$PROJECT_ROOT/srv-img-totem"
+LOG_FILE="$PROJECT_ROOT/logs/srv-img-totem-updates.log"
 GITHUB_REPO="https://github.com/support-totem125/srv-img-totem.git"
 
 # Crear directorio de logs si no existe
-mkdir -p logs
+mkdir -p "$PROJECT_ROOT/logs"
 
 # Función para logging con timestamp
 log_message() {
@@ -64,7 +68,7 @@ git log --oneline -3 | while read line; do
     log_message "   $line"
 done
 
-cd ..
+cd "$PROJECT_ROOT"
 
 # Recargar el servicio con docker compose
 log_message "🐳 Recargando servicio srv-img con docker compose..."
