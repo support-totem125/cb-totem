@@ -1,0 +1,266 @@
+📦 ESTRUCTURA FINAL DEL REPOSITORIO PROFESIONALIZADO
+
+chat-bot-totem/                                 (Raíz del proyecto)
+│
+├─── 📄 README.md                              ⭐ PUNTO DE ENTRADA PRINCIPAL
+│    ├─ Descripción general
+│    ├─ Tabla de contenidos
+│    ├─ Arquitectura del sistema
+│    ├─ Instalación rápida
+│    ├─ Guías por rol
+│    └─ Troubleshooting general
+│
+├─── �� CONTRIBUTING.md                        🤝 Guía de Contribuciones
+│    ├─ Código de conducta
+│    ├─ Cómo comenzar
+│    ├─ Reportar bugs
+│    ├─ Sugerir features
+│    ├─ Proceso de Pull Requests
+│    ├─ Estándares de código
+│    └─ Proceso de review
+│
+├─── 📄 docker-compose.yaml                    🐳 Orquestación de Servicios
+│    ├─ PostgreSQL database
+│    ├─ Redis cache
+│    ├─ Evolution API
+│    ├─ Chatwoot web & sidekiq
+│    ├─ n8n workflow engine
+│    ├─ calidda-api microservice
+│    └─ srv-img image server
+│
+├─── ⚙️  .env                                   Variables de Entorno (No compartir)
+├─── 📋 .env.example                          Ejemplo de variables v1
+├─── 🚫 .gitignore                            Archivos a ignorar
+
+│
+├─── �� docs/                                   DOCUMENTACIÓN PROFESIONAL COMPLETA
+│    │
+│    ├─── 📑 INDEX.md                          🎯 ÍNDICE Y NAVEGACIÓN MAESTRO
+│    │    ├─ Tabla de contenidos
+│    │    ├─ Cómo empezar (5/15/30 minutos)
+│    │    ├─ Documentación por sección
+│    │    ├─ Búsqueda por rol
+│    │    ├─ Búsqueda por tema
+│    │    ├─ Estructura visual
+│    │    └─ Tips de navegación
+│    │
+│    ├─── 📋 CHANGES.md                        📈 Historial de Cambios v2.0
+│    │    ├─ Problemas identificados (5)
+│    │    ├─ Soluciones implementadas
+│    │    ├─ Archivos creados
+│    │    ├─ Archivos modificados
+│    │    ├─ Estadísticas de cambios
+│    │    ├─ Impacto esperado
+│    │    └─ Proceso de actualización
+│    │
+│    ├─── 📂 guides/                           🚀 GUÍAS DE INICIO Y CONFIGURACIÓN
+│    │    │
+│    │    ├─── ⚡ 01-QUICK_START.md             (5 minutos - EMPIEZA AQUÍ)
+│    │    │     ├─ Paso 1: Copiar configuración
+│    │    │     ├─ Paso 2: Editar .env
+│    │    │     ├─ Paso 3: Iniciar servicios
+│    │    │     ├─ Paso 4: Verificar
+│    │    │     ├─ Acceso a servicios
+│    │    │     ├─ Troubleshooting rápido
+│    │    │     └─ Timeline de inicio
+│    │    │
+│    │    ├─── 📋 02-INSTALLATION_GUIDE.md     (20 minutos - Completa)
+│    │    │     ├─ Requisitos del sistema
+│    │    │     ├─ Instalación de Docker
+│    │    │     ├─ Instalación paso a paso
+│    │    │     ├─ Configuración por ambiente
+│    │    │     ├─ Comandos Docker útiles
+│    │    │     ├─ Validación post-instalación
+│    │    │     └─ Troubleshooting detallado
+│    │    │
+│    │    └─── ⚙️  03-CONFIGURATION_GUIDE.md   (30 minutos - Por Ambiente)
+│    │          ├─ Configuración general (DOMAIN_HOST)
+│    │          ├─ Desarrollo (Localhost)
+│    │          ├─ Staging (Red interna)
+│    │          ├─ Producción (Dominio HTTPS)
+│    │          ├─ Variables de entorno detalladas
+│    │          ├─ Generador de contraseñas
+│    │          └─ Checklist de configuración
+│    │
+│    ├─── 📂 architecture/                     🏗️ ARQUITECTURA Y DISEÑO
+│    │    │
+│    │    ├─── 📊 ARCHITECTURE.md              (20 minutos)
+│    │    │     ├─ Diagrama general
+│    │    │     ├─ Componentes principales
+│    │    │     ├─ Flujos de datos
+│    │    │     ├─ Comunicación entre servicios
+│    │    │     ├─ Seguridad por niveles
+│    │    │     ├─ Escalabilidad
+│    │    │     └─ Stack tecnológico
+│    │    │
+│    │    └─── 🔄 SYSTEM_DESIGN.md            (15 minutos)
+│    │          ├─ Flujos detallados
+│    │          ├─ Secuencias de eventos
+│    │          ├─ Diagrama de componentes
+│    │          └─ Decisiones de diseño
+│    │
+│    ├─── 📂 api/                              🔌 APIs Y WORKFLOWS
+│    │    │
+│    │    ├─── 📚 API_REFERENCE.md             (30 minutos)
+│    │    │     ├─ Chatwoot API
+│    │    │     ├─ calidda-api endpoints
+│    │    │     ├─ n8n webhooks
+│    │    │     ├─ Evolution API
+│    │    │     └─ Ejemplos prácticos
+│    │    │
+│    │    └─── 🤖 N8N_WORKFLOWS.md             (25 minutos)
+│    │          ├─ Flujo de WhatsApp
+│    │          ├─ Búsqueda por DNI
+│    │          ├─ Webhook handling
+│    │          └─ Ejemplos de workflows
+│    │
+│    ├─── 📂 deployment/                       🚢 DESPLIEGUE Y PRODUCCIÓN
+│    │    │
+│    │    ├─── 📖 DEPLOYMENT_GUIDE.md          (30 minutos)
+│    │    │     ├─ Pre-requisitos
+│    │    │     ├─ Pasos de instalación
+│    │    │     ├─ Health checks
+│    │    │     ├─ Backups automáticos
+│    │    │     ├─ Monitoreo
+│    │    │     ├─ Actualizaciones
+│    │    │     └─ Disaster recovery
+│    │    │
+│    │    ├─── 🌍 ENVIRONMENTS.md              (20 minutos)
+│    │    │     ├─ Variables por ambiente
+│    │    │     ├─ Configuración dev
+│    │    │     ├─ Configuración staging
+│    │    │     ├─ Configuración producción
+│    │    │     └─ Scaling horizontal
+│    │    │
+│    │    └─── 🔐 SECURITY_CHECKLIST.md        (45 minutos - CRÍTICO)
+│    │          ├─ Pre-despliegue
+│    │          ├─ Contraseñas y claves
+│    │          ├─ Red y dominio
+│    │          ├─ HTTPS y SSL/TLS
+│    │          ├─ Base de datos
+│    │          ├─ Firewall y DDoS
+│    │          ├─ Backups y monitoreo
+│    │          ├─ Problemas comunes
+│    │          └─ Mantenimiento regular
+│    │
+│    └─── 📂 troubleshooting/                  🔧 SOLUCIÓN DE PROBLEMAS
+│         │
+│         ├─── 🛠️  TROUBLESHOOTING.md           (30+ soluciones)
+│         │     ├─ Problemas generales
+│         │     ├─ Chatwoot no inicia
+│         │     ├─ n8n issues
+│         │     ├─ calidda-api errors
+│         │     ├─ PostgreSQL problems
+│         │     ├─ Redis issues
+│         │     ├─ Conectividad
+│         │     ├─ Performance
+│         │     └─ Checklist de diagnóstico
+│         │
+│         ├─── ❓ FAQ.md                       (Preguntas frecuentes)
+│         │     ├─ Preguntas comunes
+│         │     ├─ Respuestas rápidas
+│         │     └─ Links a documentación
+│         │
+│         └─── 📝 LOGS.md                      (Logging y monitoreo)
+│              ├─ Entender logs
+│              ├─ Análisis de errores
+│              ├─ Monitoreo
+│              └─ Alertas
+│
+│
+├─── 🐍 vcc-totem/                             Microservicio Calidda (Python)
+│    ├─ src/
+│    │  ├─ main.py                             CLI principal
+│    │  ├─ api_wrapper.py                      Wrapper FastAPI
+│    │  ├─ api/
+│    │  │  ├─ auth.py
+│    │  │  └─ client.py
+│    │  └─ utils/
+│    │     ├─ formatters.py
+│    │     └─ messages.py
+│    ├─ requirements.txt                       Dependencias
+│    └─ README.md                              Documentación local
+│
+├─── ��️  srv-img-totem/                        Servidor de Imágenes (Python)
+│    ├─ main.py                                Código principal
+│    ├─ requirements.txt                       Dependencias
+│    └─ README.md                              Documentación local
+│
+├─── 🛠️  scripts/                              Scripts de Utilidad
+│    ├─ ✨ init-chatwoot.sh                    Auto-inicialización Chatwoot
+│    ├─ create-multiple-databases.sh
+│    ├─ manage.sh
+│    ├─ update-vcc-totem.sh
+│    ├─ update-srv-img-totem.sh
+│    ├─ watchtower-info.sh
+│    └─ auto-sync.sh
+│
+├─── 📊 logs/                                  Archivos de Log
+│    └─ (Logs generados en tiempo de ejecución)
+│
+├─── 📦 api/                                   Catálogos
+│    └─ catalogos/2025/fnb/noviembre/
+│
+├─── 🖼️  imagenes/                             Imágenes de Catálogos
+│    └─ catalogos/2025/fnb/noviembre/
+│
+└─── 🔧 ARCHIVOS AUXILIARES
+     ├─ show-structure.sh                      Script de visualización
+     └─ PROYECTO_PROFESIONAL_RESUMEN.txt      Este documento
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+📊 RESUMEN ESTADÍSTICO
+
+Total de Documentos .md:        10+ archivos
+Total de Líneas:                3,792+ líneas
+Total de Páginas:               100+ páginas
+Total de Secciones:             40+ secciones
+Total de Ejemplos:              20+ ejemplos
+Checklists:                     3 completos
+Problemas Solucionados:         30+ en troubleshooting
+
+Estructura de Carpetas:         7 carpetas principales
+Guías por Rol:                  4 (Admin, Dev, DevOps, User)
+Diagramas y Visualizaciones:    5+
+
+═════════════════════════════════════════════════════════════════════════════
+
+🎯 NAVEGACIÓN RÁPIDA
+
+¿PRIMER ACCESO?
+  → README.md (5 min)
+  → docs/guides/01-QUICK_START.md (5 min)
+
+¿INSTALACIÓN COMPLETA?
+  → docs/guides/02-INSTALLATION_GUIDE.md (20 min)
+  → docs/guides/03-CONFIGURATION_GUIDE.md (30 min)
+
+¿ENTENDER ARQUITECTURA?
+  → docs/architecture/ARCHITECTURE.md (20 min)
+
+¿DESARROLLO?
+  → docs/api/API_REFERENCE.md (30 min)
+  → docs/api/N8N_WORKFLOWS.md (25 min)
+
+¿PRODUCCIÓN?
+  → docs/deployment/DEPLOYMENT_GUIDE.md (30 min)
+  → docs/deployment/SECURITY_CHECKLIST.md (45 min) 🔐 CRÍTICO
+
+¿PROBLEMA?
+  → docs/troubleshooting/TROUBLESHOOTING.md (30+ soluciones)
+  → docs/troubleshooting/FAQ.md (preguntas frecuentes)
+
+¿CÓMO CONTRIBUIR?
+  → CONTRIBUTING.md (profesional)
+
+═════════════════════════════════════════════════════════════════════════════
+
+Versión: 2.0 - Production Ready Edition
+Status: ✅ Profesionalizado
+Licencia: MIT
+Creado por: Diego Moscaiza
+Última actualización: Noviembre 2025
+
+═════════════════════════════════════════════════════════════════════════════
