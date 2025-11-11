@@ -39,11 +39,18 @@ else
     docker --version
 fi
 
-if ! command -v docker-compose &> /dev/null; then
-    echo -e "${RED}✗ Docker Compose NO está instalado${NC}"
-else
+# Soportar ambas versiones: docker-compose y docker compose
+if command -v docker-compose &> /dev/null; then
     echo -e "${GREEN}✓ Docker Compose está instalado${NC}"
     docker-compose --version
+    COMPOSE_CMD="docker-compose"
+elif docker compose version &> /dev/null; then
+    echo -e "${GREEN}✓ Docker Compose está instalado (versión nueva)${NC}"
+    docker compose version
+    COMPOSE_CMD="docker compose"
+else
+    echo -e "${RED}✗ Docker Compose NO está instalado${NC}"
+    exit 1
 fi
 
 echo ""
@@ -55,7 +62,7 @@ echo ""
 echo -e "${YELLOW}🚀 ESTADO DE SERVICIOS...${NC}"
 echo ""
 
-docker-compose ps
+$COMPOSE_CMD ps
 
 echo ""
 
@@ -129,11 +136,11 @@ echo -e "${YELLOW}📋 ÚLTIMOS ERRORES EN LOGS...${NC}"
 echo ""
 
 echo "N8N (últimas 10 líneas):"
-docker-compose logs --tail 10 n8n 2>/dev/null | tail -5 || echo "  (Sin logs)"
+$COMPOSE_CMD logs --tail 10 n8n 2>/dev/null | tail -5 || echo "  (Sin logs)"
 
 echo ""
 echo "PostgreSQL (últimas 10 líneas):"
-docker-compose logs --tail 10 postgres 2>/dev/null | tail -5 || echo "  (Sin logs)"
+$COMPOSE_CMD logs --tail 10 postgres 2>/dev/null | tail -5 || echo "  (Sin logs)"
 
 echo ""
 
