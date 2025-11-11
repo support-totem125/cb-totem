@@ -1,9 +1,13 @@
 #!/bin/bash
 # Script para actualizar el repo vcc-totem
-# Uso: bash /home/admin/Documents/chat-bot-totem/scripts/update-vcc-totem.sh
+# Uso: bash scripts/update-vcc-totem.sh
 
-REPO_PATH="/home/admin/Documents/chat-bot-totem/vcc-totem"
-LOG_FILE="/home/admin/Documents/chat-bot-totem/logs/vcc-totem-updates.log"
+# Obtener ruta del proyecto de forma dinámica
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+REPO_PATH="$PROJECT_ROOT/vcc-totem"
+LOG_FILE="$PROJECT_ROOT/logs/vcc-totem-updates.log"
 
 # Crear directorio de logs si no existe
 mkdir -p "$(dirname "$LOG_FILE")"
