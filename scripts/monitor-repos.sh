@@ -5,12 +5,14 @@
 # Se ejecuta periódicamente y notifica si hay actualizaciones disponibles
 # Uso: ./scripts/monitor-repos.sh
 # Para ejecución automática, agregarlo a crontab:
-# */5 * * * * /home/admin/Documents/chat-bot-totem/scripts/monitor-repos.sh
+# */5 * * * * /path/to/chat-bot-totem/scripts/monitor-repos.sh
 ################################################################################
 
 set -e
 
-MAIN_REPO="/home/admin/Documents/chat-bot-totem"
+# Obtener ruta del proyecto de forma dinámica
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MAIN_REPO="$(cd "$SCRIPT_DIR/.." && pwd)"
 STATUS_FILE="/tmp/chat-bot-totem-status.txt"
 NOTIFICATION_FILE="/tmp/chat-bot-totem-notification.flag"
 
