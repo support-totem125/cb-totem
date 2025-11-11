@@ -73,20 +73,26 @@ git clone https://github.com/diego-moscaiza/chat-bot-totem.git
 cd chat-bot-totem
 ```
 
-### 2️⃣ Configurar ambiente
+### 2️⃣ Inicializar repositorios externos
+```bash
+bash scripts/init-repos.sh
+```
+Este script clona automáticamente `vcc-totem` y `srv-img-totem` si no existen.
+
+### 3️⃣ Configurar ambiente
 ```bash
 cp .env.example .env
 nano .env
 # Editar: DOMAIN_HOST, POSTGRES_PASSWORD, REDIS_PASSWORD
 ```
 
-### 3️⃣ Iniciar servicios
+### 4️⃣ Iniciar servicios
 ```bash
 docker-compose up -d
 docker-compose ps  # Verificar que todos estén "Up"
 ```
 
-### 4️⃣ Acceder
+### 5️⃣ Acceder
 ```
 - Chatwoot:    http://localhost:3000
 - n8n:         http://localhost:5678
