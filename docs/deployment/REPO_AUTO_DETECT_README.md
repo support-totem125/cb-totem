@@ -30,13 +30,13 @@ VS Code mostrará automáticamente:
 
 ```bash
 # Ver cambios en todos los repos
-./scripts/check-updates.sh
+./scripts/status.sh
 
-# Hacer fetch automático (para cron)
-./scripts/fetch-all-repos.sh
+# Hacer sync automático (para cron)
+./scripts/sync.sh
 
-# Monitoreo continuo (para cron)
-./scripts/monitor-repos.sh
+# Sincronización continua (para cron)
+./scripts/sync-watch.sh
 ```
 
 ---

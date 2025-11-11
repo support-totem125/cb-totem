@@ -288,9 +288,16 @@ chat-bot-totem/
 │   └── CHANGES.md                     ← Historial de cambios
 │
 ├── scripts/                           ← Scripts de utilidad
+│   ├── init-repos.sh                  ← Clonar repos externos
 │   ├── init-chatwoot.sh               ← Auto-inicialización
-│   ├── manage.sh
-│   └── ...
+│   ├── status.sh                      ← Ver cambios disponibles
+│   ├── sync.sh                        ← Descargar cambios
+│   ├── sync-watch.sh                  ← Sincronización automática
+│   ├── watch.sh                       ← Vigilar config Docker
+│   ├── validate.sh                    ← Validar instalación
+│   ├── menu.sh                        ← Menú interactivo
+│   ├── update-vcc-totem.sh            ← Actualizar servicio
+│   └── update-srv-img-totem.sh        ← Actualizar servidor
 │
 ├── vcc-totem/                         ← Microservicio (consultas)
 │   ├── src/

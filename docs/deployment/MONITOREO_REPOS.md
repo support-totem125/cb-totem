@@ -43,12 +43,12 @@ Esto hace que VS Code automáticamente:
 
 ## 🚀 Scripts Disponibles
 
-### 1. `check-updates.sh` - Verificación Rápida
+### 1. `status.sh` - Verificación Rápida
 
 Verifica si hay cambios disponibles en TODOS los repos:
 
 ```bash
-./scripts/check-updates.sh
+./scripts/status.sh
 ```
 
 Output:
@@ -78,15 +78,15 @@ Ejecuta para actualizar:
   • bash scripts/update-srv-img-totem.sh
 ```
 
-### 2. `fetch-all-repos.sh` - Fetch Manual
+### 2. `sync.sh` - Sync Manual
 
 Hace `git fetch` en todos los repos y muestra resumen:
 
 ```bash
-./scripts/fetch-all-repos.sh
+./scripts/sync.sh
 ```
 
-### 3. `monitor-repos.sh` - Monitoreo Continuo
+### 3. `sync-watch.sh` - Sincronización Automática
 
 Script para ejecutar periódicamente (cron):
 
@@ -95,7 +95,7 @@ Script para ejecutar periódicamente (cron):
 crontab -e
 
 # Agregar esta línea:
-*/5 * * * * /home/admin/Documents/chat-bot-totem/scripts/monitor-repos.sh
+*/5 * * * * /home/admin/Documents/chat-bot-totem/scripts/sync-watch.sh
 ```
 
 ---
@@ -118,7 +118,7 @@ Ejecutar manualmente cada cierto tiempo:
 
 ```bash
 # Terminal integrada en VS Code
-./scripts/check-updates.sh    # Ver cambios
+./scripts/status.sh           # Ver cambios
 ./scripts/update-vcc-totem.sh  # Actualizar repo específico
 ```
 
@@ -131,10 +131,10 @@ Para servidores, agregar a crontab:
 
 ```bash
 # Cada 5 minutos
-*/5 * * * * /home/admin/Documents/chat-bot-totem/scripts/monitor-repos.sh
+*/5 * * * * /home/admin/Documents/chat-bot-totem/scripts/sync-watch.sh
 
 # Cada hora
-0 * * * * /home/admin/Documents/chat-bot-totem/scripts/fetch-all-repos.sh
+0 * * * * /home/admin/Documents/chat-bot-totem/scripts/sync.sh
 ```
 
 ---
@@ -191,7 +191,23 @@ git log @{u}..HEAD  # Cambios a subir
 **Solución**:
 1. Abre como **Workspace**, no como carpeta
 2. Verifica que `git.autofetch` está activado (Settings)
-3. Ejecuta manualmente: `./scripts/check-updates.sh`
+3. Ejecuta manualmente: `Para servidores, agregar a crontab:
+
+```bash
+# Cada 5 minutos
+*/5 * * * * /home/admin/Documents/chat-bot-totem/scripts/sync-watch.sh
+
+# Cada hora
+0 * * * * /home/admin/Documents/chat-bot-totem/scripts/sync.sh
+```
+
+---
+
+## 📊 Flujo de Trabajo
+
+### Para Desarrollo
+
+````
 
 ### El fetch no encuentra cambios
 
@@ -223,8 +239,9 @@ bash scripts/check-updates.sh
 ## 📝 Archivos Relacionados
 
 - `chat-bot-totem.code-workspace` - Configuración de VS Code
-- `scripts/check-updates.sh` - Verificar cambios
-- `scripts/fetch-all-repos.sh` - Hacer fetch
+- `scripts/status.sh` - Verificar cambios
+- `scripts/sync.sh` - Hacer sync
+- `scripts/sync-watch.sh` - Sincronización automática
 - `scripts/update-vcc-totem.sh` - Actualizar vcc-totem
 - `scripts/update-srv-img-totem.sh` - Actualizar srv-img-totem
 
