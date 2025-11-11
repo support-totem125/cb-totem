@@ -6,7 +6,9 @@
 # Muestra estado de todos los repos
 ################################################################################
 
-MAIN_REPO="/home/admin/Documents/chat-bot-totem"
+# Obtener ruta del proyecto de forma dinámica
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MAIN_REPO="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Colores
 GREEN='\033[0;32m'
