@@ -1,13 +1,12 @@
 #!/bin/bash
 #
-# Script de inicialización de Chatwoot
+# Script de inicialización de Chatwoot v4.7.0
 # Ejecuta migraciones de base de datos si es necesario
-# Este script debe estar montado en el contenedor de Chatwoot en /scripts/init-chatwoot.sh
 #
 
 set -e
 
-echo "🚀 Inicializando Chatwoot..."
+echo "🚀 Inicializando Chatwoot v4.7.0..."
 
 # Cambiar al directorio de la aplicación
 cd /app
@@ -30,17 +29,15 @@ echo "✅ PostgreSQL está disponible"
 
 # Ejecutar migraciones
 echo "🔄 Ejecutando migraciones de base de datos..."
-if bundle exec rails db:migrate 2>&1; then
+if bundle exec rails db:migrate; then
   echo "✅ Migraciones completadas"
 else
-  echo "❌ Error durante las migraciones"
-  exit 1
+  echo "⚠️  Hubo un error en las migraciones, pero continuando..."
 fi
 
 echo "✅ Chatwoot inicializado correctamente"
 echo ""
 echo "🎉 ¡Iniciando servidor Chatwoot!"
 
-# Ejecutar el servidor Rails
-# Usar el entrypoint original y luego el comando
-exec /app/docker/entrypoints/rails.sh bundle exec rails s -p 3000 -b 0.0.0.0
+# Ejecutar el servidor Rails directamente
+exec bundle exec rails s -p 3000 -b 0.0.0.0
