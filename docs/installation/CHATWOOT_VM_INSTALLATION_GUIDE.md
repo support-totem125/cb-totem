@@ -182,7 +182,7 @@ services:
     image: redis:7-alpine
     container_name: redis_cache
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD:-redis}
+    command: redis-server --requirepass ${REDIS_PASSWORD:-change_me_redis}
     volumes:
       - redis_data:/data
     healthcheck:
@@ -212,7 +212,7 @@ services:
       
       # Redis
       REDIS_URL: redis://redis:6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-change_me_redis}
       
       # Seguridad (CRÍTICO: Generar uno único)
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
@@ -257,7 +257,7 @@ services:
       POSTGRES_USERNAME: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       REDIS_URL: redis://redis:6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-change_me_redis}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       RAILS_ENV: production
       NODE_ENV: production
