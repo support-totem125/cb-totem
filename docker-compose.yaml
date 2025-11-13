@@ -4,9 +4,9 @@ services:
     image: pgvector/pgvector:pg15
     container_name: postgres_db
     restart: unless-stopped
-    mem_limit: 128m
-    mem_reservation: 64m
-    cpus: 0.5
+    mem_limit: 256m
+    mem_reservation: 128m
+    cpus: 0.15
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_postgres}
@@ -29,10 +29,10 @@ services:
     image: redis:7-alpine
     container_name: redis_cache
     restart: unless-stopped
-    mem_limit: 64m
-    mem_reservation: 32m
-    cpus: 0.3
-    command: redis-server --requirepass ${REDIS_PASSWORD:-change_me_redis} --maxmemory 50mb --maxmemory-policy allkeys-lru
+    mem_limit: 128m
+    mem_reservation: 64m
+    cpus: 0.15
+    command: redis-server --requirepass ${REDIS_PASSWORD:-change_me_redis} --maxmemory 100mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     networks:
@@ -50,7 +50,7 @@ services:
     restart: unless-stopped
     mem_limit: 256m
     mem_reservation: 128m
-    cpus: 1.0
+    cpus: 0.25
     ports:
       - "${EVOLUTION_SERVER_PORT:-8080}:8080"
     environment:
@@ -211,14 +211,15 @@ services:
     restart: unless-stopped
     mem_limit: 400m
     mem_reservation: 256m
-    cpus: 1.0
+    cpus: 0.2
     ports:
       - "3000:3000"
     environment:
       # Rails
       - RAILS_ENV=${RAILS_ENV:-production}
-      - RAILS_MAX_THREADS=3
+      - RAILS_MAX_THREADS=2
       - SECRET_KEY_BASE=${CHATWOOT_SECRET_KEY_BASE}
+      - WORKER_POOL_SIZE=2   # Limitar workers
 
       # Frontend URL
       - FRONTEND_URL=${CHATWOOT_FRONTEND_URL:-http://localhost:3000}
@@ -280,14 +281,18 @@ services:
     image: chatwoot/chatwoot:latest
     container_name: chatwoot_sidekiq
     restart: unless-stopped
-    mem_limit: 512m
+    mem_limit: 400m
     mem_reservation: 256m
-    cpus: 0.5
+    cpus: 0.2
     environment:
       # Rails
       - RAILS_ENV=${RAILS_ENV:-production}
       - SECRET_KEY_BASE=${CHATWOOT_SECRET_KEY_BASE:-replace_with_lengthy_secure_hex}
-      - SIDEKIQ_CONCURRENCY=5
+      - SIDEKIQ_CONCURRENCY=2
+      - SIDEKIQ_QUEUES=default,low
+      - JOB_POLLING_INTERVAL=60000  # 60 segundos en vez de 30
+      - DISABLE_EMAIL_JOBS=false  # Cambiar a true si no usas email
+
 
       # Database
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
@@ -321,9 +326,9 @@ services:
     image: n8nio/n8n:stable
     container_name: n8n
     restart: unless-stopped
-    mem_limit: 384m
-    mem_reservation: 192m
-    cpus: 0.5
+    mem_limit: 256m
+    mem_reservation: 128m
+    cpus: 0.3
     ports:
       - "5678:5678"
     environment:
@@ -381,9 +386,9 @@ services:
     image: python:3.11-slim
     container_name: calidda_api
     restart: unless-stopped
-    mem_limit: 128m
-    mem_reservation: 64m
-    cpus: 0.5
+    mem_limit: 96m
+    mem_reservation: 48m
+    cpus: 0.1
     working_dir: /src
     command: sh -c "pip install -q -r requirements.txt && python3 api_wrapper.py"
     ports:
@@ -406,9 +411,9 @@ services:
     image: python:3.11-slim
     container_name: srv_img
     restart: unless-stopped
-    mem_limit: 128m
-    mem_reservation: 64m
-    cpus: 0.5
+    mem_limit: 96m
+    mem_reservation: 48m
+    cpus: 0.2
     working_dir: /srv
     command: sh -c "pip install -q -r requirements.txt && python3 main.py"
     ports:
@@ -441,7 +446,6 @@ volumes:
     driver: local
   n8n_files:
     driver: local
-  # pgadmin_data: # Deshabilitado junto con pgAdmin
 
 networks:
   app_network:
