@@ -6,11 +6,11 @@
 
 ## 🎯 Inicio Rápido
 
-| Tiempo | Documento | Descripción |
-|--------|-----------|-------------|
-| **5 min** | [**01-QUICK_START.md**](guides/01-QUICK_START.md) | ⭐ Empieza aquí - Instalación rápida |
-| **20 min** | [**02-INSTALLATION_GUIDE.md**](guides/02-INSTALLATION_GUIDE.md) | Instalación completa paso a paso |
-| **30 min** | [**03-CONFIGURATION_GUIDE.md**](guides/03-CONFIGURATION_GUIDE.md) | Configuración por ambiente |
+| Tiempo     | Documento                                                         | Descripción                         |
+| ---------- | ----------------------------------------------------------------- | ----------------------------------- |
+| **5 min**  | [**01-QUICK_START.md**](guides/01-QUICK_START.md)                 | ⭐ Empieza aquí - Instalación rápida |
+| **20 min** | [**02-INSTALLATION_GUIDE.md**](guides/02-INSTALLATION_GUIDE.md)   | Instalación completa paso a paso    |
+| **30 min** | [**03-CONFIGURATION_GUIDE.md**](guides/03-CONFIGURATION_GUIDE.md) | Configuración por ambiente          |
 
 ---
 
@@ -20,6 +20,14 @@
 - [`guides/01-QUICK_START.md`](guides/01-QUICK_START.md) — Instalación en 5 minutos
 - [`guides/02-INSTALLATION_GUIDE.md`](guides/02-INSTALLATION_GUIDE.md) — Guía completa
 - [`guides/03-CONFIGURATION_GUIDE.md`](guides/03-CONFIGURATION_GUIDE.md) — Configuración
+
+### 🔧 Instalación Chatwoot (2 docs) ⭐ NUEVO
+- [`installation/CHATWOOT_VM_INSTALLATION_GUIDE.md`](installation/CHATWOOT_VM_INSTALLATION_GUIDE.md) — **Guía completa de instalación en VM**
+  - Por qué NO funciona al primer intento
+  - Análisis del bug en migración 20231211010807
+  - Solución paso a paso con workaround
+  - Mejores prácticas para VMs de producción
+- [`installation/QUICK_FIX_CHATWOOT.md`](installation/QUICK_FIX_CHATWOOT.md) — **Fix rápido en 3 pasos**
 
 ### 🏗️ Arquitectura (1 doc)
 - [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md) — Diseño del sistema
@@ -62,28 +70,28 @@
 
 ## 🔍 Búsqueda Rápida
 
-| Necesitas... | Ve a... |
-|-------------|---------|
-| Instalación rápida | [`01-QUICK_START.md`](guides/01-QUICK_START.md) |
-| Configurar variables | [`03-CONFIGURATION_GUIDE.md`](guides/03-CONFIGURATION_GUIDE.md) |
-| Entender arquitectura | [`ARCHITECTURE.md`](architecture/ARCHITECTURE.md) |
-| Crear workflows | [`N8N_WORKFLOW.md`](api/N8N_WORKFLOW.md) |
-| Resolver problemas | [`TROUBLESHOOTING.md`](troubleshooting/TROUBLESHOOTING.md) |
-| Detectar cambios | [`MONITOREO_REPOS.md`](deployment/MONITOREO_REPOS.md) |
-| Ver cambios v2.0 | [`CHANGES.md`](CHANGES.md) |
-| Links oficiales | [`REFERENCES.md`](REFERENCES.md) |
+| Necesitas...          | Ve a...                                                         |
+| --------------------- | --------------------------------------------------------------- |
+| Instalación rápida    | [`01-QUICK_START.md`](guides/01-QUICK_START.md)                 |
+| Configurar variables  | [`03-CONFIGURATION_GUIDE.md`](guides/03-CONFIGURATION_GUIDE.md) |
+| Entender arquitectura | [`ARCHITECTURE.md`](architecture/ARCHITECTURE.md)               |
+| Crear workflows       | [`N8N_WORKFLOW.md`](api/N8N_WORKFLOW.md)                        |
+| Resolver problemas    | [`TROUBLESHOOTING.md`](troubleshooting/TROUBLESHOOTING.md)      |
+| Detectar cambios      | [`MONITOREO_REPOS.md`](deployment/MONITOREO_REPOS.md)           |
+| Ver cambios v2.0      | [`CHANGES.md`](CHANGES.md)                                      |
+| Links oficiales       | [`REFERENCES.md`](REFERENCES.md)                                |
 
 ---
 
 ## 📊 Estadísticas
 
-- **Total documentos**: 9 archivos
-- **Páginas estimadas**: ~80 páginas
-- **Tiempo lectura completa**: 2-3 horas
-- **Tiempo lectura esencial**: 30-60 min
+- **Total documentos**: 11 archivos (+2 nuevos)
+- **Páginas estimadas**: ~120 páginas
+- **Tiempo lectura completa**: 3-4 horas
+- **Tiempo lectura esencial**: 45-90 min
 
 ---
 
-**Versión**: 2.0  
-**Última actualización**: Noviembre 2025  
-**Estado**: ✅ Documentación completa
+**Versión**: 2.1  
+**Última actualización**: Enero 2025  
+**Estado**: ✅ Documentación completa + Guías Chatwoot VM
