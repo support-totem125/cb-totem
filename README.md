@@ -67,36 +67,93 @@ Chat-Bot Totem es una **solución completa** para automatizar atención al clien
 
 ## 🚀 Instalación Rápida
 
-### 1️⃣ Clonar repositorio
-```bash
-git clone https://github.com/diego-moscaiza/chat-bot-totem.git
-cd chat-bot-totem
-```
+### ⚡ Instalación Automática (Recomendado)
 
-### 2️⃣ Inicializar repositorios externos
 ```bash
+# 1. Clonar repositorio
+git clone https://github.com/support-totem125/cb-totem.git
+cd cb-totem
+
+# 2. Inicializar repositorios externos
 bash scripts/init-repos.sh
-```
-Este script clona automáticamente `vcc-totem` y `srv-img-totem` si no existen.
 
-### 3️⃣ Configurar ambiente
+# 3. Ejecutar script de instalación automática
+./scripts/init-chatwoot.sh
+```
+
+**El script automático:**
+- ✅ Limpia instalaciones previas
+- ✅ Levanta PostgreSQL y Redis
+- ✅ Ejecuta `rails db:chatwoot_prepare` (NO `db:migrate` - evita bug conocido)
+- ✅ Verifica que todo funcione correctamente
+- ✅ Ofrece crear usuario SuperAdmin
+
+### 📝 Instalación Manual (Si prefieres control total)
+
 ```bash
+# 1. Clonar repositorio
+git clone https://github.com/support-totem125/cb-totem.git
+cd cb-totem
+
+# 2. Inicializar repositorios externos
+bash scripts/init-repos.sh
+
+# 3. Configurar ambiente (opcional)
 cp .env.example .env
 nano .env
-# Editar: DOMAIN_HOST, POSTGRES_PASSWORD, REDIS_PASSWORD
+
+# 4. Limpiar instalaciones previas
+docker compose down -v
+docker volume prune -f
+
+# 5. Levantar solo base de datos y Redis
+docker compose up -d postgres redis
+sleep 15  # Esperar a que estén healthy
+
+# 6. ⚠️ IMPORTANTE: Preparar base de datos correctamente
+docker compose run --rm chatwoot-web bundle exec rails db:chatwoot_prepare
+# ⚠️ NO usar 'rails db:migrate' - esto causa el bug 20231211010807
+
+# 7. Levantar todos los servicios
+docker compose up -d
+
+# 8. Verificar
+docker compose ps
 ```
 
-### 4️⃣ Iniciar servicios
+### ✅ Verificación Post-Instalación
+
 ```bash
-docker-compose up -d
-docker-compose ps  # Verificar que todos estén "Up"
+# Verificar que Chatwoot responde
+curl -I http://localhost:3000
+# Debe retornar: HTTP/1.1 200 OK o 302 Found
+
+# Verificar tablas en base de datos
+docker exec postgres_db psql -U postgres -d chatwoot -c "\dt" | wc -l
+# Debe retornar: ~86-90 (NO ~10-15)
+
+# Ver logs
+docker compose logs chatwoot-web --tail=20
 ```
 
-### 5️⃣ Acceder
+### 🌐 Acceder a los Servicios
+
 ```
-- Chatwoot:    http://localhost:3000
-- n8n:         http://localhost:5678
-- Evolution:   http://localhost:8080
+- Chatwoot:      http://localhost:3000
+- Evolution API: http://localhost:8080
+- n8n:           http://localhost:5678
+- Calidda API:   http://localhost:5000
+- Servidor IMG:  http://localhost:8000
+```
+
+### 🆘 Si Algo Falla
+
+```bash
+# Ejecutar script de reparación
+./scripts/fix-chatwoot.sh
+
+# O ver guía completa
+cat docs/installation/QUICK_FIX_CHATWOOT.md
 ```
 
 **⏱️ Tiempo total**: 5 minutos
