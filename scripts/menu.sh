@@ -45,14 +45,14 @@ show_menu() {
     echo "11) 📷 Gestionar Servidor de Imágenes (srv-img)"
     echo "12) 🔌 Gestionar API de Calidda (vcc-totem)"
     echo ""
-    echo "11) 🔑 Generar claves y contraseñas"
-    echo "12) 📦 Actualizar servicios"
-    echo "13) 🧹 Limpiar contenedores e imágenes"
-    echo "14) 💾 Backup de datos"
-    echo "15) 🔄 Restaurar backup"
+    echo "13) 🔑 Generar claves y contraseñas"
+    echo "14) 📦 Actualizar servicios"
+    echo "15) 🧹 Limpiar contenedores e imágenes"
+    echo "16) 💾 Backup de datos"
+    echo "17) 🔄 Restaurar backup"
     echo ""
-    echo "16) ℹ️  Información de acceso"
-    echo "17) 🔍 Verificar configuración"
+    echo "18) ℹ️  Información de acceso"
+    echo "19) 🔍 Verificar configuración"
     echo ""
     echo "0)  ❌ Salir"
     echo ""
@@ -327,11 +327,11 @@ database_menu() {
             ;;
         5)
             echo -e "\n${BLUE}🔧 Accediendo a PostgreSQL...${NC}\n"
-            dc exec postgres psql -U postgres
+            docker exec -it postgres_db psql -U postgres
             ;;
         6)
             echo -e "\n${BLUE}📋 Bases de datos:${NC}\n"
-            dc exec postgres psql -U postgres -c "\l"
+            docker exec postgres_db psql -U postgres -c "\l"
             ;;
         7)
             backup_database
@@ -385,21 +385,143 @@ redis_menu() {
         5)
             echo -e "\n${BLUE}🔧 Accediendo a Redis CLI...${NC}\n"
             source .env
-            dc exec redis redis-cli -a "${REDIS_PASSWORD}"
+            docker exec -it redis_cache redis-cli -a "${REDIS_PASSWORD}"
             ;;
         6)
             echo -e "\n${BLUE}ℹ️  Información de Redis:${NC}\n"
             source .env
-            dc exec redis redis-cli -a "${REDIS_PASSWORD}" INFO
+            docker exec redis_cache redis-cli -a "${REDIS_PASSWORD}" INFO
             ;;
         7)
             echo -e "\n${YELLOW}⚠️  ¿Estás seguro de limpiar el cache de Redis? (s/n): ${NC}"
             read -r confirm
             if [ "$confirm" = "s" ] || [ "$confirm" = "S" ]; then
                 source .env
-                dc exec redis redis-cli -a "${REDIS_PASSWORD}" FLUSHALL
+                docker exec redis_cache redis-cli -a "${REDIS_PASSWORD}" FLUSHALL
                 echo -e "\n${GREEN}✅ Cache limpiado${NC}"
             fi
+            ;;
+        0)
+            return
+            ;;
+    esac
+    echo -e "\nPresiona Enter para continuar..."
+    read -r
+}
+
+# Menú de Servidor de Imágenes
+srv_img_menu() {
+    clear
+    show_banner
+    echo -e "${GREEN}=== GESTIÓN DE SERVIDOR DE IMÁGENES ===${NC}\n"
+    echo "1) Ver logs de srv-img"
+    echo "2) Reiniciar srv-img"
+    echo "3) Detener srv-img"
+    echo "4) Iniciar srv-img"
+    echo "5) Ver información de conexión"
+    echo "6) Abrir en navegador"
+    echo "7) Ver catálogos disponibles"
+    echo "0) Volver al menú principal"
+    echo ""
+    echo -n "Selecciona una opción: "
+    read -r option; sanitize_input
+    
+    case $option in
+        1)
+            echo -e "\n${BLUE}📝 Logs de srv-img (Ctrl+C para salir)...${NC}\n"
+            dc logs -f srv-img
+            ;;
+        2)
+            echo -e "\n${YELLOW}🔄 Reiniciando srv-img...${NC}\n"
+            dc restart srv-img
+            echo -e "\n${GREEN}✅ srv-img reiniciado${NC}"
+            ;;
+        3)
+            echo -e "\n${YELLOW}🛑 Deteniendo srv-img...${NC}\n"
+            dc stop srv-img
+            echo -e "\n${GREEN}✅ srv-img detenido${NC}"
+            ;;
+        4)
+            echo -e "\n${GREEN}🚀 Iniciando srv-img...${NC}\n"
+            dc start srv-img
+            echo -e "\n${GREEN}✅ srv-img iniciado${NC}"
+            ;;
+        5)
+            echo -e "\n${BLUE}=== SERVIDOR DE IMÁGENES ===${NC}"
+            echo -e "${GREEN}URL Base:${NC} http://localhost:8000"
+            echo -e "${GREEN}Health Check:${NC} http://localhost:8000/"
+            echo -e "${GREEN}Catálogos:${NC} http://localhost:8000/api/catalogos"
+            echo -e "${GREEN}Documentación:${NC} http://localhost:8000/docs"
+            ;;
+        6)
+            xdg-open "http://localhost:8000/docs" 2>/dev/null || echo "Abre manualmente: http://localhost:8000/docs"
+            ;;
+        7)
+            echo -e "\n${BLUE}📋 Verificando catálogos en srv-img-totem...${NC}\n"
+            if [ -d "$PROJECT_DIR/srv-img-totem/imagenes" ]; then
+                ls -lh "$PROJECT_DIR/srv-img-totem/imagenes"
+            else
+                echo -e "${YELLOW}⚠️  Directorio imagenes/ no encontrado${NC}"
+            fi
+            ;;
+        0)
+            return
+            ;;
+    esac
+    echo -e "\nPresiona Enter para continuar..."
+    read -r
+}
+
+# Menú de API de Calidda
+calidda_api_menu() {
+    clear
+    show_banner
+    echo -e "${GREEN}=== GESTIÓN DE API DE CALIDDA ===${NC}\n"
+    echo "1) Ver logs de calidda-api"
+    echo "2) Reiniciar calidda-api"
+    echo "3) Detener calidda-api"
+    echo "4) Iniciar calidda-api"
+    echo "5) Ver información de conexión"
+    echo "6) Abrir en navegador"
+    echo "7) Probar endpoint principal"
+    echo "0) Volver al menú principal"
+    echo ""
+    echo -n "Selecciona una opción: "
+    read -r option; sanitize_input
+    
+    case $option in
+        1)
+            echo -e "\n${BLUE}📝 Logs de calidda-api (Ctrl+C para salir)...${NC}\n"
+            dc logs -f calidda-api
+            ;;
+        2)
+            echo -e "\n${YELLOW}🔄 Reiniciando calidda-api...${NC}\n"
+            dc restart calidda-api
+            echo -e "\n${GREEN}✅ calidda-api reiniciado${NC}"
+            ;;
+        3)
+            echo -e "\n${YELLOW}🛑 Deteniendo calidda-api...${NC}\n"
+            dc stop calidda-api
+            echo -e "\n${GREEN}✅ calidda-api detenido${NC}"
+            ;;
+        4)
+            echo -e "\n${GREEN}🚀 Iniciando calidda-api...${NC}\n"
+            dc start calidda-api
+            echo -e "\n${GREEN}✅ calidda-api iniciado${NC}"
+            ;;
+        5)
+            echo -e "\n${BLUE}=== API DE CALIDDA (VCC-TOTEM) ===${NC}"
+            echo -e "${GREEN}URL Base:${NC} http://localhost:5000"
+            echo -e "${GREEN}Health Check:${NC} http://localhost:5000/"
+            echo -e "${GREEN}Endpoint Principal:${NC} http://localhost:5000/run"
+            echo -e "${GREEN}Código Fuente:${NC} vcc-totem/src/main.py"
+            ;;
+        6)
+            xdg-open "http://localhost:5000" 2>/dev/null || echo "Abre manualmente: http://localhost:5000"
+            ;;
+        7)
+            echo -e "\n${BLUE}🔍 Probando endpoint principal...${NC}\n"
+            curl -f http://localhost:5000/ 2>/dev/null && echo -e "\n${GREEN}✅ API respondiendo correctamente${NC}" || echo -e "\n${RED}❌ API no responde${NC}"
             ;;
         0)
             return
@@ -492,7 +614,7 @@ backup_database() {
     BACKUP_FILE="$BACKUP_DIR/backup_$TIMESTAMP.sql"
     
     echo -e "\n${YELLOW}💾 Creando backup de la base de datos...${NC}\n"
-    dc exec -T postgres pg_dumpall -U postgres > "$BACKUP_FILE"
+    docker exec -T postgres_db pg_dumpall -U postgres > "$BACKUP_FILE"
     
     if [ -f "$BACKUP_FILE" ]; then
         echo -e "\n${GREEN}✅ Backup creado: $BACKUP_FILE${NC}"
@@ -522,7 +644,7 @@ restore_backup() {
         read -r confirm
         if [ "$confirm" = "s" ] || [ "$confirm" = "S" ]; then
             echo -e "\n${YELLOW}🔄 Restaurando backup...${NC}\n"
-            dc exec -T postgres psql -U postgres < "$BACKUP_DIR/$backup_file"
+            docker exec -i postgres_db psql -U postgres < "$BACKUP_DIR/$backup_file"
             echo -e "\n${GREEN}✅ Backup restaurado${NC}"
         fi
     else
@@ -583,6 +705,18 @@ show_access_info() {
     echo -e "${BLUE}🔹 REDIS${NC}"
     echo -e "   Host: ${GREEN}localhost:6379${NC}"
     echo -e "   Contraseña: ${GREEN}${REDIS_PASSWORD}${NC}"
+    echo ""
+    
+    echo -e "${BLUE}🔹 SERVIDOR DE IMÁGENES (srv-img)${NC}"
+    echo -e "   URL: ${GREEN}http://localhost:8000${NC}"
+    echo -e "   Documentación: ${GREEN}http://localhost:8000/docs${NC}"
+    echo -e "   Catálogos: ${GREEN}http://localhost:8000/api/catalogos${NC}"
+    echo ""
+    
+    echo -e "${BLUE}🔹 API DE CALIDDA (vcc-totem)${NC}"
+    echo -e "   URL: ${GREEN}http://localhost:5000${NC}"
+    echo -e "   Endpoint: ${GREEN}http://localhost:5000/run${NC}"
+    echo -e "   Código: ${GREEN}vcc-totem/src/main.py${NC}"
 }
 
 # Verificar configuración
@@ -639,6 +773,37 @@ check_config() {
     else
         echo -e "${RED}❌ Script de bases de datos no encontrado${NC}"
     fi
+    
+    echo -e "\n${BLUE}Verificando servicios adicionales...${NC}"
+    if [ -d "$PROJECT_DIR/srv-img-totem" ]; then
+        echo -e "${GREEN}✅ srv-img-totem encontrado${NC}"
+        if [ -f "$PROJECT_DIR/srv-img-totem/main.py" ]; then
+            echo -e "${GREEN}✅ main.py existe${NC}"
+        else
+            echo -e "${RED}❌ main.py no encontrado${NC}"
+        fi
+    else
+        echo -e "${RED}❌ Directorio srv-img-totem no encontrado${NC}"
+    fi
+    
+    if [ -d "$PROJECT_DIR/vcc-totem" ]; then
+        echo -e "${GREEN}✅ vcc-totem encontrado${NC}"
+        if [ -f "$PROJECT_DIR/vcc-totem/api_wrapper.py" ]; then
+            echo -e "${GREEN}✅ api_wrapper.py existe${NC}"
+        else
+            echo -e "${RED}❌ api_wrapper.py no encontrado${NC}"
+        fi
+    else
+        echo -e "${RED}❌ Directorio vcc-totem no encontrado${NC}"
+    fi
+    
+    echo -e "\n${BLUE}Verificando servicios en ejecución...${NC}"
+    dc ps 2>/dev/null | grep -E "(evolution-api|chatwoot-web|n8n|postgres|redis|srv-img|calidda-api)" | while read line; do
+        if echo "$line" | grep -q "Up"; then
+            SERVICE=$(echo "$line" | awk '{print $1}')
+            echo -e "${GREEN}✅ $SERVICE está corriendo${NC}"
+        fi
+    done
 }
 
 # Bucle principal
@@ -660,13 +825,15 @@ main() {
             8) n8n_menu ;;
             9) database_menu ;;
             10) redis_menu ;;
-            11) generate_keys ;;
-            12) update_services ;;
-            13) clean_docker ;;
-            14) backup_database ;;
-            15) restore_backup ;;
-            16) show_access_info ;;
-            17) check_config ;;
+            11) srv_img_menu ;;
+            12) calidda_api_menu ;;
+            13) generate_keys ;;
+            14) update_services ;;
+            15) clean_docker ;;
+            16) backup_database ;;
+            17) restore_backup ;;
+            18) show_access_info ;;
+            19) check_config ;;
             0)
                 echo -e "\n${GREEN}👋 ¡Hasta luego!${NC}\n"
                 exit 0
@@ -676,7 +843,7 @@ main() {
                 ;;
         esac
         
-        if [ "$option" != "5" ] && [ "$option" != "6" ] && [ "$option" != "7" ] && [ "$option" != "8" ] && [ "$option" != "9" ] && [ "$option" != "10" ] && [ "$option" != "16" ] && [ "$option" != "17" ]; then
+        if [ "$option" != "5" ] && [ "$option" != "6" ] && [ "$option" != "7" ] && [ "$option" != "8" ] && [ "$option" != "9" ] && [ "$option" != "10" ] && [ "$option" != "11" ] && [ "$option" != "12" ] && [ "$option" != "18" ] && [ "$option" != "19" ]; then
             echo -e "\nPresiona Enter para continuar..."
             read -r
         fi
