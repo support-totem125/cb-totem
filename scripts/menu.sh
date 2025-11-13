@@ -512,16 +512,16 @@ calidda_api_menu() {
         5)
             echo -e "\n${BLUE}=== API DE CALIDDA (VCC-TOTEM) ===${NC}"
             echo -e "${GREEN}URL Base:${NC} http://localhost:5000"
-            echo -e "${GREEN}Health Check:${NC} http://localhost:5000/"
-            echo -e "${GREEN}Endpoint Principal:${NC} http://localhost:5000/run"
-            echo -e "${GREEN}Código Fuente:${NC} vcc-totem/src/main.py"
+            echo -e "${GREEN}Health Check:${NC} http://localhost:5000/health"
+            echo -e "${GREEN}Endpoint Query:${NC} POST http://localhost:5000/query"
+            echo -e "${GREEN}Código Fuente:${NC} vcc-totem/api_wrapper.py"
             ;;
         6)
-            xdg-open "http://localhost:5000" 2>/dev/null || echo "Abre manualmente: http://localhost:5000"
+            xdg-open "http://localhost:5000/health" 2>/dev/null || echo "Abre manualmente: http://localhost:5000/health"
             ;;
         7)
-            echo -e "\n${BLUE}🔍 Probando endpoint principal...${NC}\n"
-            curl -f http://localhost:5000/ 2>/dev/null && echo -e "\n${GREEN}✅ API respondiendo correctamente${NC}" || echo -e "\n${RED}❌ API no responde${NC}"
+            echo -e "\n${BLUE}🔍 Probando endpoint de salud...${NC}\n"
+            curl -s http://localhost:5000/health 2>/dev/null && echo -e "\n${GREEN}✅ API respondiendo correctamente${NC}" || echo -e "\n${RED}❌ API no responde${NC}"
             ;;
         0)
             return
@@ -715,8 +715,9 @@ show_access_info() {
     
     echo -e "${BLUE}🔹 API DE CALIDDA (vcc-totem)${NC}"
     echo -e "   URL: ${GREEN}http://localhost:5000${NC}"
-    echo -e "   Endpoint: ${GREEN}http://localhost:5000/run${NC}"
-    echo -e "   Código: ${GREEN}vcc-totem/src/main.py${NC}"
+    echo -e "   Health: ${GREEN}http://localhost:5000/health${NC}"
+    echo -e "   Endpoint: ${GREEN}POST http://localhost:5000/query${NC}"
+    echo -e "   Código: ${GREEN}vcc-totem/api_wrapper.py${NC}"
 }
 
 # Verificar configuración
