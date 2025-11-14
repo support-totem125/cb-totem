@@ -333,7 +333,7 @@ services:
     restart: unless-stopped
     mem_limit: 256m
     mem_reservation: 128m
-    cpus: 0.3
+    cpus: 0.6
     ports:
       - "5678:5678"
     environment:
