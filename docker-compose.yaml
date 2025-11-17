@@ -331,11 +331,11 @@ services:
     image: n8nio/n8n:stable
     container_name: n8n
     restart: unless-stopped
-    mem_limit: 256m
-    mem_reservation: 128m
+    mem_limit: 385m
+    mem_reservation: 256m
     cpus: 0.5
     ports:
-      - "5678:5678"
+      - "${SERVER_NET_IP_ADDR:-127.0.0.1}:5678:5678"
     environment:
       # Basic Configuration
       - N8N_HOST=${N8N_HOST:-localhost}
@@ -383,6 +383,7 @@ services:
       - VCC_TOTEM_HOST_PUBLIC=${VCC_TOTEM_HOST_PUBLIC}
       - VCC_TOTEM_PORT=${VCC_TOTEM_PORT:-5000}
       - SRV_IMG_HOST_PUBLIC=${SRV_IMG_HOST_PUBLIC}
+      - SRV_IMG_HOST_EXTERNAL=${SRV_IMG_HOST_EXTERNAL}
       - SRV_IMG_PORT=${SRV_IMG_PORT:-8000}
     volumes:
       - n8n_data:/home/node/.n8n
@@ -405,7 +406,7 @@ services:
     working_dir: /src
     command: sh -c "pip install -q -r requirements.txt && python3 api_wrapper.py"
     ports:
-      - "5000:5000"
+      - "${SERVER_NET_IP_ADDR:-127.0.0.1}:5000:5000"
     volumes:
       - ./vcc-totem:/src
     networks:
@@ -430,7 +431,7 @@ services:
     working_dir: /srv
     command: sh -c "pip install -q -r requirements.txt && python3 main.py"
     ports:
-      - "8000:8000"
+      - "${SERVER_NET_IP_ADDR:-127.0.0.1}:8000:8000"
     volumes:
       - ./srv-img-totem:/srv
     networks:
