@@ -219,7 +219,7 @@ services:
     restart: unless-stopped
     mem_limit: 400m
     mem_reservation: 256m
-    cpus: 0.3
+    cpus: 0.4
     ports:
       - "3000:3000"
     environment:
@@ -289,8 +289,8 @@ services:
     image: chatwoot/chatwoot:latest
     container_name: chatwoot_sidekiq
     restart: unless-stopped
-    mem_limit: 400m
-    mem_reservation: 256m
+    mem_limit: 512m
+    mem_reservation: 385m
     cpus: 0.4
     environment:
       # Rails
