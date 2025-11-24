@@ -278,11 +278,11 @@ services:
         condition: service_healthy
     command: ["sh", "-c", "bundle exec rails db:chatwoot_prepare && bundle exec rails s -p 3000 -b 0.0.0.0"]
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/" ]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
 
   # Chatwoot Sidekiq - Worker para tareas en background
   chatwoot-sidekiq:
@@ -454,13 +454,14 @@ services:
     image: ollama/ollama:latest
     container_name: ollama_ai
     restart: unless-stopped
-    mem_limit: 1800m
-    mem_reservation: 1512m
-    cpus: 1.0
+    mem_limit: 1024m
+    mem_reservation: 512m
+    cpus: 0.5
     ports:
       - "11434:11434"
     environment:
       OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_NUM_THREAD: 1
     volumes:
       - ollama_data:/root/.ollama
     networks:
