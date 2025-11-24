@@ -331,20 +331,20 @@ services:
 
   # n8n - Automatización de workflows
   n8n:
-    image: n8nio/n8n:stable
+    image: n8nio/n8n:1.119.2
     container_name: n8n
     restart: unless-stopped
-    mem_limit: 256m
-    mem_reservation: 192m
-    cpus: 0.35
+    mem_limit: 385m
+    mem_reservation: 256m
+    cpus: 0.5
     ports:
-      - "0.0.0.0:5678:5678"
+      - "${SERVER_NET_IP_ADDR:-127.0.0.1}:5678:5678"
     environment:
       # Basic Configuration
-      - N8N_HOST=${N8N_HOST:-192.168.5.25}
+      - N8N_HOST=${N8N_HOST:-localhost}
       - N8N_PORT=${N8N_PORT:-5678}
       - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
-      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://192.168.5.25:5678/}
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
       - N8N_LISTEN_ADDRESS=0.0.0.0
       # Desactivar cookie segura en desarrollo para permitir HTTP (evita el aviso de secure cookie)
       - N8N_SECURE_COOKIE=${N8N_SECURE_COOKIE:-false}
