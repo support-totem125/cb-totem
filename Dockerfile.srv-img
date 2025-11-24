@@ -1,0 +1,53 @@
+# syntax=docker/dockerfile:1
+# Dockerfile optimizado para srv-img (Multi-stage)
+# Stage 1: Compilar todas las dependencias una sola vez
+FROM python:3.11-slim AS builder
+
+WORKDIR /tmp
+
+# Instalar herramientas de compilación
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements
+COPY srv-img-totem/requirements.txt .
+
+# Compilar todas las ruedas (.whl) - esto tarda la primera vez
+# Las ruedas se cachean entre builds de Docker
+RUN pip install --upgrade pip && \
+    pip wheel --no-cache-dir --wheel-dir /tmp/wheels -r requirements.txt
+
+# ============================================================
+# Stage 2: Imagen final ligera (sin herramientas de compilación)
+FROM python:3.11-slim
+
+WORKDIR /srv
+
+# Instalar solo dependencias de runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libffi8 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar ruedas precompiladas desde builder
+COPY --from=builder /tmp/wheels /tmp/wheels
+
+# Copiar requirements
+COPY srv-img-totem/requirements.txt .
+
+# Instalar desde ruedas precompiladas (MUCHO MÁS RÁPIDO - sin compilar)
+RUN pip install --no-cache-dir --no-index --find-links=/tmp/wheels -r requirements.txt && \
+    rm -rf /tmp/wheels
+
+# Copiar código de la aplicación
+COPY srv-img-totem .
+
+# Variables de entorno
+ENV PYTHONUNBUFFERED=1
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=45s \
+    CMD python3 -c 'import urllib.request; urllib.request.urlopen("http://localhost:8000/", timeout=3)' || exit 1
+
+# Ejecutar aplicación
+CMD ["python3", "main.py"]
