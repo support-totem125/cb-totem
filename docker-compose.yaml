@@ -334,8 +334,8 @@ services:
     image: n8nio/n8n:1.119.2
     container_name: n8n
     restart: unless-stopped
-    mem_limit: 385m
-    mem_reservation: 256m
+    mem_limit: 512m
+    mem_reservation: 384m
     cpus: 0.5
     ports:
       - "${SERVER_NET_IP_ADDR:-127.0.0.1}:5678:5678"
@@ -441,30 +441,6 @@ services:
       retries: 5
       start_period: 45s
 
-  # Ollama - Modelos de IA local
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama_ai
-    restart: unless-stopped
-    mem_limit: 1024m
-    mem_reservation: 512m
-    cpus: 0.5
-    ports:
-      - "11434:11434"
-    environment:
-      OLLAMA_HOST: 0.0.0.0:11434
-      OLLAMA_NUM_THREAD: 1
-    volumes:
-      - ollama_data:/root/.ollama
-    networks:
-      - app_network
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:11434/api/tags" ]
-      interval: 60s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-
 volumes:
   postgres_data:
     driver: local
@@ -479,8 +455,6 @@ volumes:
   n8n_data:
     driver: local
   n8n_files:
-    driver: local
-  ollama_data:
     driver: local
 
 networks:
