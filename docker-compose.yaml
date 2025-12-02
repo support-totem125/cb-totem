@@ -227,7 +227,7 @@ services:
       - RAILS_ENV=${RAILS_ENV:-production}
       - RAILS_MAX_THREADS=2
       - SECRET_KEY_BASE=${CHATWOOT_SECRET_KEY_BASE}
-      - WORKER_POOL_SIZE=2   # Limitar workers
+      - WORKER_POOL_SIZE=2 # Limitar workers
 
       # Frontend URL
       - FRONTEND_URL=${CHATWOOT_FRONTEND_URL:-http://localhost:3000}
@@ -276,7 +276,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: ["sh", "-c", "bundle exec rails db:chatwoot_prepare && bundle exec rails s -p 3000 -b 0.0.0.0"]
+    command: [ "sh", "-c", "bundle exec rails db:chatwoot_prepare && bundle exec rails s -p 3000 -b 0.0.0.0" ]
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000/" ]
       interval: 60s
@@ -298,9 +298,8 @@ services:
       - SECRET_KEY_BASE=${CHATWOOT_SECRET_KEY_BASE:-replace_with_lengthy_secure_hex}
       - SIDEKIQ_CONCURRENCY=2
       - SIDEKIQ_QUEUES=default,low
-      - JOB_POLLING_INTERVAL=60000  # 60 segundos en vez de 30
-      - DISABLE_EMAIL_JOBS=false  # Cambiar a true si no usas email
-
+      - JOB_POLLING_INTERVAL=60000 # 60 segundos en vez de 30
+      - DISABLE_EMAIL_JOBS=false # Cambiar a true si no usas email
 
       # Database
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
@@ -380,7 +379,7 @@ services:
       # Seguridad y compatibilidad
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
-      
+
       # Variables de servicios internos (para workflows)
       - DOMAIN_HOST=${DOMAIN_HOST:-localhost}
       - SERVER_NET_IP_ADDR=${SERVER_NET_IP_ADDR:-192.168.5.25}
@@ -432,6 +431,8 @@ services:
     cpus: 0.2
     ports:
       - "${SERVER_NET_IP_ADDR:-127.0.0.1}:8000:8000"
+    volumes:
+      - srv_img_data:/srv/data
     networks:
       - app_network
     healthcheck:
@@ -455,6 +456,8 @@ volumes:
   n8n_data:
     driver: local
   n8n_files:
+    driver: local
+  srv_img_data:
     driver: local
 
 networks:
