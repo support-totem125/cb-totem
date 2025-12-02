@@ -46,21 +46,35 @@ COPY srv-img-totem/main.py .
 COPY srv-img-totem/src ./src
 COPY srv-img-totem/templates ./templates
 COPY srv-img-totem/imagenes ./imagenes
-COPY srv-img-totem/scripts-sqlite ./scripts-sqlite
+COPY srv-img-totem/scripts ./scripts
 
-# Copiar archivo de configuraci\u00f3n (opcional, usa valores por defecto si no existe)
+# Copiar archivo de configuración (opcional, usa valores por defecto si no existe)
 COPY srv-img-totem/.env* ./
 
-# Crear directorio para base de datos SQLite
-RUN mkdir -p /srv/data
-
-# Crear la base de datos durante el build EN EL VOLUMEN
-# (el volumen se monta en tiempo de ejecución, así que creamos aquí como fallback)
-RUN cd /srv/data && python3 ../scripts-sqlite/create_database.py || true
+# Crear directorios necesarios
+RUN mkdir -p /srv/data /srv/imagenes
 
 # Variables de entorno
 ENV PYTHONUNBUFFERED=1
 ENV IMAGENES_DIR=/srv/imagenes
+ENV DATABASE_URL=sqlite:////srv/data/catalogos.db
+
+# IMPORTANTE - ESTRATEGIA DE PROTECCIÓN DE DATOS:
+# =====================================================
+# Los datos se guardan en volumen persistente /srv/data
+# 
+# 1. La BD (catalogos.db) se preserva entre reconstrucciones de imagen
+# 2. El volumen no se borra al reconstruir la imagen
+# 3. Los cambios en el código no afectan los datos existentes
+# 4. El volumen está definido en docker-compose.yaml como 'srv_img_data'
+#
+# PROCEDIMIENTO DE RECONSTRUCCIÓN SEGURA:
+# - NO se debe hacer durante la compilación de la imagen
+# - El contenedor creará la BD la primera vez automáticamente
+# - En reconstrucciones, la BD existente se preserva
+# - Para backups: usar scripts/rebuild-srv-img-safe.sh
+# - Para restaurar: usar srv-img-totem/scripts/sqlite/restore_database.py
+# =====================================================
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=45s \
