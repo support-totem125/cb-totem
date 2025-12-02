@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
 # Dockerfile optimizado para calidda-api (Multi-stage)
+# Última actualización: 2025-12-01
+
 # Stage 1: Compilar todas las dependencias una sola vez
 FROM python:3.11-slim AS builder
 
@@ -40,7 +42,15 @@ RUN pip install --no-cache-dir --no-index --find-links=/tmp/wheels -r requiremen
     rm -rf /tmp/wheels
 
 # Copiar código de la aplicación
-COPY vcc-totem .
+COPY vcc-totem/api_wrapper.py .
+COPY vcc-totem/src ./src
+
+# Copiar archivo de configuración (.env con credenciales)
+# IMPORTANTE: Este archivo contiene CALIDDA_USUARIO y CALIDDA_PASSWORD
+COPY vcc-totem/.env .env
+
+# Crear directorio para logs
+RUN mkdir -p /src/logs
 
 # Variables de entorno
 ENV PYTHONUNBUFFERED=1
@@ -48,6 +58,9 @@ ENV PYTHONUNBUFFERED=1
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=45s \
     CMD python3 -c 'import urllib.request; urllib.request.urlopen("http://localhost:5000/health", timeout=3)' || exit 1
+
+# Puerto expuesto
+EXPOSE 5000
 
 # Ejecutar aplicación
 CMD ["python3", "api_wrapper.py"]
