@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
 # Dockerfile optimizado para srv-img (Multi-stage)
+# Última actualización: 2025-12-01
+
 # Stage 1: Compilar todas las dependencias una sola vez
 FROM python:3.11-slim AS builder
 
@@ -39,15 +41,33 @@ COPY srv-img-totem/requirements.txt .
 RUN pip install --no-cache-dir --no-index --find-links=/tmp/wheels -r requirements.txt && \
     rm -rf /tmp/wheels
 
-# Copiar código de la aplicación
-COPY srv-img-totem .
+# Copiar c\u00f3digo de la aplicaci\u00f3n
+COPY srv-img-totem/main.py .
+COPY srv-img-totem/src ./src
+COPY srv-img-totem/templates ./templates
+COPY srv-img-totem/imagenes ./imagenes
+COPY srv-img-totem/scripts-sqlite ./scripts-sqlite
+
+# Copiar archivo de configuraci\u00f3n (opcional, usa valores por defecto si no existe)
+COPY srv-img-totem/.env* ./
+
+# Crear directorio para base de datos SQLite
+RUN mkdir -p /srv/data
+
+# Crear la base de datos durante el build EN EL VOLUMEN
+# (el volumen se monta en tiempo de ejecución, así que creamos aquí como fallback)
+RUN cd /srv/data && python3 ../scripts-sqlite/create_database.py || true
 
 # Variables de entorno
 ENV PYTHONUNBUFFERED=1
+ENV IMAGENES_DIR=/srv/imagenes
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=45s \
     CMD python3 -c 'import urllib.request; urllib.request.urlopen("http://localhost:8000/", timeout=3)' || exit 1
+
+# Puerto expuesto
+EXPOSE 8000
 
 # Ejecutar aplicación
 CMD ["python3", "main.py"]
