@@ -433,6 +433,7 @@ services:
       - "${SERVER_NET_IP_ADDR:-127.0.0.1}:8000:8000"
     volumes:
       - srv_img_data:/srv/data
+      - ./srv-img-totem/imagenes:/srv/imagenes:ro
     networks:
       - app_network
     healthcheck:
