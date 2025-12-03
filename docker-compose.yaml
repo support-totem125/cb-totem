@@ -333,9 +333,9 @@ services:
     image: n8nio/n8n:1.119.2
     container_name: n8n
     restart: unless-stopped
-    mem_limit: 512m
-    mem_reservation: 384m
-    cpus: 0.5
+    mem_limit: 1024m
+    mem_reservation: 768m
+    cpus: 0.8
     ports:
       - "${SERVER_NET_IP_ADDR:-127.0.0.1}:5678:5678"
     environment:
@@ -379,6 +379,11 @@ services:
       # Seguridad y compatibilidad
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
+
+      # Timeouts y limites para HTTP (aumentados para descargas grandes)
+      - N8N_HTTP_REQUEST_TIMEOUT=300000
+      - N8N_CUSTOM_EXTENSIONS_FOLDER=/n8n/custom
+      - NODE_OPTIONS=--max-old-space-size=768
 
       # Variables de servicios internos (para workflows)
       - DOMAIN_HOST=${DOMAIN_HOST:-localhost}
