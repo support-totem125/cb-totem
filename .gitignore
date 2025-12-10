@@ -121,5 +121,3 @@ site/
 !.env.example
 !.env.sample
 !.env.template
-srv-img-totem/
-vcc-totem/
