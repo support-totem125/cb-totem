@@ -393,8 +393,11 @@ services:
       - VCC_TOTEM_HOST_PUBLIC=${VCC_TOTEM_HOST_PUBLIC}
       - VCC_TOTEM_PORT=${VCC_TOTEM_PORT:-5000}
       - SRV_IMG_HOST_PUBLIC=${SRV_IMG_HOST_PUBLIC}
-      - SRV_IMG_HOST_EXTERNAL=${SRV_IMG_HOST_EXTERNAL}
       - SRV_IMG_PORT=${SRV_IMG_PORT:-8000}
+      # IMPORTANTE: Usar srv-img por DNS interno de Docker
+      # Todos los servicios en app_network resuelven srv-img automáticamente
+      - SRV_IMG_EXTERNAL_HOST=srv-img
+      - SRV_IMG_INTERNAL=http://srv-img:${SRV_IMG_PORT:-8000}
 
     volumes:
       - n8n_data:/home/node/.n8n
