@@ -395,9 +395,7 @@ services:
       - SRV_IMG_HOST_PUBLIC=${SRV_IMG_HOST_PUBLIC}
       - SRV_IMG_HOST_EXTERNAL=${SRV_IMG_HOST_EXTERNAL}
       - SRV_IMG_PORT=${SRV_IMG_PORT:-8000}
-      # URLs para acceder a srv-img (ahora en servidor independiente)
-      - SRV_IMG_EXTERNAL_URL=http://192.168.5.25:8000
-      - SRV_IMG_STANDALONE_URL=http://192.168.5.25:8000
+
     volumes:
       - n8n_data:/home/node/.n8n
       - n8n_files:/files
@@ -429,6 +427,30 @@ services:
       retries: 5
       start_period: 45s
 
+  # Servidor de Imágenes - FastAPI (Multi-stage Dockerfile)
+  srv-img:
+    build:
+      context: .
+      dockerfile: Dockerfile.srv-img
+    container_name: srv_img
+    restart: unless-stopped
+    mem_limit: 80m
+    mem_reservation: 32m
+    cpus: 0.2
+    ports:
+      - "${SERVER_NET_IP_ADDR:-127.0.0.1}:8000:8000"
+    volumes:
+      - srv_img_data:/srv/data
+      - ./srv-img-totem/imagenes:/srv/imagenes:ro
+    networks:
+      - app_network
+    healthcheck:
+      test: [ "CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/\", timeout=3)' || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+
 volumes:
   postgres_data:
     driver: local
@@ -443,6 +465,8 @@ volumes:
   n8n_data:
     driver: local
   n8n_files:
+    driver: local
+  srv_img_data:
     driver: local
 
 networks:
