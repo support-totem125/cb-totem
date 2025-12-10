@@ -121,3 +121,7 @@ site/
 !.env.example
 !.env.sample
 !.env.template
+
+# Omitir proyectos internos
+srv-img-totem/
+vcc-totem/
